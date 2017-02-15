@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      About
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="userInfo">
+    <ion-list-header>User Info</ion-list-header>
+    <ion-item>
+      <ion-icon name='contact' item-left></ion-icon> Username
+      <ion-note item-right>{{userInfo.username}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='mail' item-left></ion-icon> Email
+      <ion-note item-right>{{userInfo.email}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='mail-open' item-left></ion-icon> Email verified
+      <ion-note item-right>{{userInfo.emailVerified}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='lock' item-left></ion-icon> Role
+      <ion-note item-right>{{userInfo.role}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='time' item-left></ion-icon> Created at
+      <ion-note item-right>{{userInfo.createAt}}</ion-note>
+    </ion-item>
+  </ion-list>
+
+  <ion-list>
+    <ion-list-header>Device Info</ion-list-header>
+    <ion-item *ngIf="networkType">
+      <ion-icon name='wifi' item-left></ion-icon> Network
+      <ion-note item-right>{{networkType}}</ion-note>
+    </ion-item>
+    <ion-item *ngIf="batteryLevel">
+      <ion-icon name='battery-dead' item-left></ion-icon> Battery
+      <ion-note item-right>{{batteryLevel}} %</ion-note>
+    </ion-item>
+    <ion-item *ngIf="batteryPlugged">
+      <ion-icon name='battery-charging' item-left></ion-icon> Plugged
+      <ion-note item-right>{{batteryPlugged}}</ion-note>
+    </ion-item>
+    <ion-item *ngIf="deviceInfo.model">
+      <ion-icon name='phone-portrait' item-left></ion-icon> Model
+      <ion-note item-right>{{deviceInfo.model}}</ion-note>
+    </ion-item>
+    <ion-item *ngIf="deviceInfo.platform">
+      <ion-icon name='settings' item-left></ion-icon> Platform
+      <ion-note item-right>{{deviceInfo.platform}}</ion-note>
+    </ion-item>
+  </ion-list>
+
+  <ion-row>
+    <ion-col>
+      <button ion-button color="danger" (click)="logout()" block>Logout</button>
+    </ion-col>
+  </ion-row>
+</ion-content>

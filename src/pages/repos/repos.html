@@ -1,0 +1,23 @@
+<!--
+  Generated template for the Repos page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar>
+    <ion-title>Github Repos</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content class="list-avatar-page">
+  <ion-list>
+    <ion-item *ngFor="let repo of repos">
+      <ion-icon item-left name="copy"></ion-icon>
+      <h2>{{repo.name}}</h2>
+      <p>{{repo.description}}</p>
+      <a ion-button clear item-right href="{{repo.url}}">View</a>
+    </ion-item>
+  </ion-list>
+</ion-content>
