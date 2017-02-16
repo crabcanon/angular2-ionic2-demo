@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { SQLite } from 'ionic-native';
+import { Observable } from 'rxjs/Rx';
 
 let db = new SQLite();
 
@@ -21,6 +22,7 @@ export interface RepoInterface {
 })
 export class ReposPage {
   public repos: RepoInterface[];
+  private startNum: number = 1;
 
   constructor(
     public navCtrl: NavController, 
@@ -50,7 +52,7 @@ export class ReposPage {
       location: 'default' 
     })
     .then(() => {
-      this.loadRepos();
+      this.loadRepos().subscribe(() => console.log('Done'));
     })
     .catch((error) => {
       console.log(error);
@@ -58,18 +60,32 @@ export class ReposPage {
   }
 
   loadRepos() {
-    db.executeSql('SELECT * FROM repos_json1 LIMIT 1,50', []).then((data) => {
-      if (data.rows.length > 0) {
-        let repoDescription: string;
-        for(let i = 0; i < data.rows.length; i++) {
-          repoDescription = data.rows.item(i).description ? data.rows.item(i).description : 'Unknown';  
-          this.repos.push({
-            name: data.rows.item(i).name, 
-            description: repoDescription,
-            url: data.rows.item(i).htmlurl
-          });
+    return new Observable((observer) => {
+      db.executeSql(`SELECT * FROM repos_json1 LIMIT ${this.startNum},${this.startNum + 50}`, []).then((data) => {
+        if (data.rows.length > 0) {
+          let repoDescription: string;
+          for(let i = 0; i < data.rows.length; i++) {
+            repoDescription = data.rows.item(i).description ? data.rows.item(i).description : 'Unknown';  
+            this.repos.push({
+              name: data.rows.item(i).name, 
+              description: repoDescription,
+              url: data.rows.item(i).htmlurl
+            });
+          }
+          observer.complete();
         }
-      }
+      });
     });
   }
+
+  loadMoreRepos(infinite:any) {
+     console.log('doInfinite, start is currently ' + this.startNum);
+     this.startNum += 50;
+     
+     this.loadRepos().subscribe(() => {
+       infinite.complete();
+     });
+  }
+
+
 }
