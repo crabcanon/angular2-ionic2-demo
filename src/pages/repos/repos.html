@@ -20,4 +20,13 @@
       <a ion-button clear item-right href="{{repo.url}}">View</a>
     </ion-item>
   </ion-list>
+
+  <ion-list>
+    <ion-item *ngFor="let function of functions">
+      <ion-icon item-left name="code-working"></ion-icon>
+      <h2>{{function.SUPNODEID}}</h2>
+      <p>{{function.NODEID}}</p>
+      <a ion-button clear item-right>View</a>
+    </ion-item>
+  </ion-list>
 </ion-content>

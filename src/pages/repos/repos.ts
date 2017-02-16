@@ -9,6 +9,11 @@ export interface RepoInterface {
   description?: string;
   url?: string;
 }
+
+export interface FunctionInterface {
+  SUPNODEID: string;
+  NODEID: string;
+}
 /*
   Generated class for the Repos page.
 
@@ -21,6 +26,7 @@ export interface RepoInterface {
 })
 export class ReposPage {
   public repos: RepoInterface[];
+  public functions: FunctionInterface[];
 
   constructor(
     public navCtrl: NavController, 
@@ -29,6 +35,9 @@ export class ReposPage {
   ) {
     this.repos = [
       { name: 'Unknown', description: 'Unknown' }
+    ];
+    this.functions = [
+      { SUPNODEID: 'Unknown', NODEID: 'Unknown' }
     ]
     platform.ready().then(() => {
       this.openDB();
@@ -50,14 +59,14 @@ export class ReposPage {
       location: 'default' 
     })
     .then(() => {
-      this.loadRepos();
+      this.loadData();
     })
     .catch((error) => {
       console.log(error);
     });
   }
 
-  loadRepos() {
+  loadData() {
     db.executeSql('SELECT * FROM repos_json1 LIMIT 1,50', []).then((data) => {
       if (data.rows.length > 0) {
         let repoDescription: string;
@@ -67,6 +76,17 @@ export class ReposPage {
             name: data.rows.item(i).name, 
             description: repoDescription,
             url: data.rows.item(i).htmlurl
+          });
+        }
+      }
+    });
+
+    db.executeSql('SELECT * FROM function LIMIT 1,50', []).then((data) => {
+      if (data.rows.length > 0) {
+        for(let i = 0; i < data.rows.length; i++) {
+          this.functions.push({
+            SUPNODEID: data.rows.item(i).SUPNODEID, 
+            NODEID: data.rows.item(i).NODEID
           });
         }
       }
