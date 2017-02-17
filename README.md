@@ -13,7 +13,7 @@ This repo could be used to explore:
 5. How to share data between pages(controllers) by
     * Route parameters
     * Angular2 service
-    * Anuular2/Ionic2 pub/sub pattern
+    * Angular2/Ionic2 pub/sub pattern
     * Mobile native storage
     * SQLite DB
 6. How to use cordova plugins(both ionic-native and other extra cordova plugins) to access mobile native functionalities, such as network, device, battery, camera, file system etc. 
@@ -34,12 +34,17 @@ $ ionic build
 $ cp src/data.db www
 $ ionic platform add ios
 $ ionic platform add android
-// If any error regarding cordova-plugin-dbcopy appears
-$ cordova plugin add https://github.com/an-rahulpandey/cordova-plugin-dbcopy.git --save 
+
+// If any error regarding cordova-plugin-dbcopy, please run:
+$ cordova plugin add https://github.com/an-rahulpandey/cordova-plugin-dbcopy.git --save
+
 $ ionic build ios
 $ ionic build android
+
 $ ionic emulate ios/android(your choice)
-// I strongly recommend to import and run this project from Android Studio or Xcode instead of running `ionic emulate`.
+
+// Do not test this project with browsers.
+// Use Android Studio or Xcode instead of running `ionic emulate`.
 // Import project from the platforms/ios or platforms/android directory.
 ```
 
