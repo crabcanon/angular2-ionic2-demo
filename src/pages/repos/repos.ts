@@ -80,16 +80,5 @@ export class ReposPage {
         }
       }
     });
-
-    db.executeSql('SELECT * FROM function LIMIT 1,50', []).then((data) => {
-      if (data.rows.length > 0) {
-        for(let i = 0; i < data.rows.length; i++) {
-          this.functions.push({
-            SUPNODEID: data.rows.item(i).SUPNODEID, 
-            NODEID: data.rows.item(i).NODEID
-          });
-        }
-      }
-    });
   }
 }
