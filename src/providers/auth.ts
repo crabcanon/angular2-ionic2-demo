@@ -121,7 +121,7 @@ export class Auth {
 
   /* Customize the expiration timer */
   public startupCustomizedExpiration() {
-    let source = Observable.timer(600000);
+    let source = Observable.timer(60000);
     let pausable = this.pauser.switchMap(paused => paused ? Observable.never() : source);
     pausable.subscribe(() => this.events.publish('auth:customizedExpiration', Date.now()));
     this.pauser.next(false);
