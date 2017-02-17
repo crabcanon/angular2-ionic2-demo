@@ -10,10 +10,6 @@ export interface RepoInterface {
   url?: string;
 }
 
-export interface FunctionInterface {
-  SUPNODEID: string;
-  NODEID: string;
-}
 /*
   Generated class for the Repos page.
 
@@ -26,7 +22,6 @@ export interface FunctionInterface {
 })
 export class ReposPage {
   public repos: RepoInterface[];
-  public functions: FunctionInterface[];
 
   constructor(
     public navCtrl: NavController, 
@@ -36,9 +31,6 @@ export class ReposPage {
     this.repos = [
       { name: 'Unknown', description: 'Unknown' }
     ];
-    this.functions = [
-      { SUPNODEID: 'Unknown', NODEID: 'Unknown' }
-    ]
     platform.ready().then(() => {
       this.openDB();
     });
