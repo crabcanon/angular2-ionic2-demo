@@ -5,6 +5,11 @@ import { StatusBar, Splashscreen, BackgroundMode } from 'ionic-native';
 import { LoginPage } from '../pages/login/login';
 import { Auth } from '../providers/auth';
 
+export interface AlertInterface {
+  title: string;
+  content: string;
+  buttonText: string;
+}
 
 @Component({
   templateUrl: 'app.html'
@@ -12,7 +17,17 @@ import { Auth } from '../providers/auth';
 export class MyApp {
   @ViewChild('nav') navCtrl: NavController;
   public rootPage = LoginPage;
-
+  public sessionAlert: AlertInterface = {
+    title: 'Will logout soon...',
+    content: 'Sorry, you have to re-login to continue becuase of our security protection.',
+    buttonText: 'Re-login' 
+  };
+  public databseAlert: AlertInterface = {
+    title: 'Cannot preload database...',
+    content: 'Sorry, this platform is not supported for preloading database.',
+    buttonText: 'OK'
+  };
+  
   constructor(
     public platform: Platform,
     public events: Events,
@@ -26,11 +41,19 @@ export class MyApp {
       Splashscreen.hide();
       BackgroundMode.disable();
 
-      window['plugins'].sqlDB.copy('data.db', 2, this.copySucceeded, this.copyFailed);
+      if (platform.is('ios')) {
+        window['plugins'].sqlDB.copy('data.db', 2, this.copySucceeded, this.copyFailed);
+      } else if (platform.is('android')) {
+        window['plugins'].sqlDB.copy('data.db', 0, this.copySucceeded, this.copyFailed);
+      } else {
+        this.presentAlert(this.databseAlert);
+      }
       
       this.events.subscribe('auth:customizedExpiration', (time) => {
         console.log('User is automatically logged out at ' + time);
-        this.presentAlert();
+        this.presentAlert(this.sessionAlert);
+        this.auth.logout();
+        this.navCtrl.popToRoot();
       });
 
       // this.events.subscribe('auth:tokenExpiration', () => {
@@ -48,21 +71,18 @@ export class MyApp {
     });
   }
 
-  presentAlert() {
-    let alert = this.alertCtrl.create({
-      title: 'Will logout soon...',
-      message: 'Sorry, you have to re-login to continue becuase of our security protection.',
+  presentAlert(alert) {
+    let newAlert = this.alertCtrl.create({
+      title: alert['title'],
+      message: alert['content'],
       buttons: [
         {
-          text: 'Re-Login',
-          handler: () => {
-            this.auth.logout();
-            this.navCtrl.popToRoot();
-          }
+          text: alert['buttonText'],
+          handler: () => { newAlert.dismiss() }
         }
       ]
     });
-    alert.present();
+    newAlert.present();
   }
 
   copySucceeded() {
@@ -70,6 +90,13 @@ export class MyApp {
   }
 
   copyFailed(e) {
-    console.log('Copy Database Error: ', JSON.stringify(e));
+    switch (e.code) {
+      case 516:
+        console.log('Database has existed in the target location!');
+        break;
+      default:
+        console.log('Copy Database Error: ', JSON.stringify(e));
+        break;
+    }
   }
 }
