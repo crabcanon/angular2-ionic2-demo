@@ -11,9 +11,17 @@
 </ion-header>
 
 
-<ion-content class="list-avatar-page">
-  <ion-list [virtualScroll]="repos">
+<ion-content>
+  <!--<ion-list [virtualScroll]="repos" approxItemHeight="60px">
     <ion-item *virtualItem="let repo">
+      <ion-icon item-left name="copy"></ion-icon>
+      <h2>{{repo.name}}</h2>
+      <p>{{repo.description}}</p>
+      <a ion-button clear item-right href="{{repo.url}}">View</a>
+    </ion-item>
+  </ion-list>-->
+  <ion-list>
+    <ion-item *ngFor="let repo of repos">
       <ion-icon item-left name="copy"></ion-icon>
       <h2>{{repo.name}}</h2>
       <p>{{repo.description}}</p>
@@ -21,10 +29,7 @@
     </ion-item>
   </ion-list>
 
-  <ion-infinite-scroll (infinite)="loadMoreRepos($event)">
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      loadingText="Loading more repos...">
-    </ion-infinite-scroll-content>
+  <ion-infinite-scroll (ionInfinite)="loadMoreRepos($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>

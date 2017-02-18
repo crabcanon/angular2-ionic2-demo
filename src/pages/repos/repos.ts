@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { SQLite } from 'ionic-native';
-import { Observable } from 'rxjs/Rx';
 
 let db = new SQLite();
 
@@ -21,7 +20,7 @@ export interface RepoInterface {
   templateUrl: 'repos.html'
 })
 export class ReposPage {
-  public repos: RepoInterface[];
+  public repos: RepoInterface[] = [];
   private startNum: number = 1;
 
   constructor(
@@ -29,9 +28,6 @@ export class ReposPage {
     public navParams: NavParams,
     private platform: Platform
   ) {
-    this.repos = [
-      { name: 'Unknown', description: 'Unknown' }
-    ]
     platform.ready().then(() => {
       this.openDB();
     });
@@ -52,7 +48,7 @@ export class ReposPage {
       location: 'default' 
     })
     .then(() => {
-      this.loadRepos().subscribe(() => console.log('Done'));
+      this.loadRepos();
     })
     .catch((error) => {
       console.log(error);
@@ -60,8 +56,8 @@ export class ReposPage {
   }
 
   loadRepos() {
-    return new Observable((observer) => {
-      db.executeSql(`SELECT * FROM repos_json1 LIMIT ${this.startNum},${this.startNum + 50}`, []).then((data) => {
+    return new Promise((resolve) => {
+      db.executeSql(`SELECT * FROM repos_json1 LIMIT ${this.startNum}, ${this.startNum + 50}`, []).then((data) => {
         if (data.rows.length > 0) {
           let repoDescription: string;
           for(let i = 0; i < data.rows.length; i++) {
@@ -72,18 +68,18 @@ export class ReposPage {
               url: data.rows.item(i).htmlurl
             });
           }
-          observer.complete();
+          resolve(true);
         }
       });
     });
   }
 
-  loadMoreRepos(infinite:any) {
+  loadMoreRepos(infiniteScroll:any) {
      console.log('doInfinite, start is currently ' + this.startNum);
      this.startNum += 50;
      
-     this.loadRepos().subscribe(() => {
-       infinite.complete();
+     this.loadRepos().then(() => {
+       infiniteScroll.complete();
      });
   }
 
