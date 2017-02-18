@@ -18,7 +18,7 @@ This repo could be used to explore:
     * SQLite DB
 6. How to use cordova plugins(both ionic-native and other extra cordova plugins) to access mobile native functionalities, such as network, device, battery, camera, file system etc. 
 7. How to prepare and preload SQLite database once users install the app.
-8. How to implement InfiniteScroll && VirtualScroll for lists.
+8. How to implement InfiniteScroll for lists.
 9. How to integrate Firebase with the mobile app.
 
 ## Get started
@@ -65,7 +65,7 @@ PS: With different roles, you will see different contents and initial routes.
 - [x] Session-expiration handler
 - [x] Share data between pages by different methods
 - [x] Preloading SQLite database
-- [ ] InfiniteScroll && VirtualScroll
+- [x] InfiniteScroll for list
 - [ ] Take photoes and store to the iOS/Android camera gallery
 - [ ] Take photoes and store base64 data to Firebase
 - [ ] Upload files from devices to Firebase 
