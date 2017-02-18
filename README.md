@@ -1,6 +1,6 @@
 # angular2-ionic2-demo
 
-An experimental project for testing role-based authentication(access permission && router-based && component-based) and native features of mobile platforms(Android && iOS) in using [TypeScript](https://www.typescriptlang.org/), [Angular2](https://angular.io/), [RxJS](http://reactivex.io/), [Ionic2](http://ionicframework.com/), [Cordova](https://cordova.apache.org/), [SQLite](https://www.sqlite.org/), [Auth0](https://auth0.com/), [Firebase](https://firebase.google.com/).  
+An experimental project for testing Ionic2 role-based authentication, SQLite pre-loading and native functionalities of mobile platforms(Android && iOS) in using [TypeScript](https://www.typescriptlang.org/), [Angular2](https://angular.io/), [RxJS](http://reactivex.io/), [Ionic2](http://ionicframework.com/), [Cordova](https://cordova.apache.org/), [SQLite](https://www.sqlite.org/), [Auth0](https://auth0.com/), [Firebase](https://firebase.google.com/).  
 
 ## About
 
@@ -10,10 +10,10 @@ This repo could be used to explore:
 2. How to implement a customisable login page with Auth0 endpoints(instead of using Auth0 JS SDK).
 3. How to use RxJS to handle `nested async calls` and `session-expiration` problem(renew JWT or force to re-login).
 4. How to customise Ionic2 components based on different user roles.
-5. How to share data between pages(controllers) by
+5. How to share data between controllers and services by
     * Route parameters
-    * Angular2 service
-    * Angular2/Ionic2 pub/sub pattern
+    * Angular2 setter/getter service for sync data flow
+    * Ionic2 publish/subscribe pattern for async data flow
     * Mobile native storage
     * SQLite DB
 6. How to use cordova plugins(both ionic-native and other extra cordova plugins) to access mobile native functionalities, such as network, device, battery, camera, file system etc. 
