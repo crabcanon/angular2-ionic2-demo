@@ -6,7 +6,7 @@ import { CameraPage } from '../camera/camera';
 import { UploadPage } from '../upload/upload';
 import { AboutPage } from '../about/about';
 
-import { Auth } from '../../providers/auth';
+import { AuthService } from '../../providers/auth-service';
 
 export interface TabsInterface {
   title: string;
@@ -40,7 +40,7 @@ export class TabsPage {
 
   constructor(
     public events: Events,
-    public auth: Auth,
+    public authService: AuthService,
     public params: NavParams
   ) { 
     this.tabId = params.get('tabId');
@@ -52,7 +52,7 @@ export class TabsPage {
    * Lifecycle events
    */
   ionViewCanEnter(): boolean{
-    let role = this.auth.getUserRole();
+    let role = this.authService.getUserRole();
     console.log('TabsView Can Enter.');
     if (role) {
       switch (role) {

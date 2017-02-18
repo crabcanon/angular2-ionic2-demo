@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, Platform, App, Events } from 'ionic-angular';
 
-import { Auth } from '../../providers/auth';
-import { Native } from '../../providers/native';
+import { AuthService } from '../../providers/auth-service';
+import { NativeService } from '../../providers/native-service';
 
 declare var navigator: any;
 declare var Connection: any;
@@ -24,13 +24,13 @@ export class AboutPage {
     public app: App, 
     public navCtrl: NavController,
     public events: Events, 
-    public auth: Auth,
-    public native: Native
+    public authService: AuthService,
+    public nativeService: NativeService
   ) { 
     this.platform.ready().then(() => {
-      this.auth.getUserInfo();
-      // this.native.checkNetworkConnection();
-      this.native.checkBatteryOnChange();
+      this.authService.getUserInfo();
+      // this.nativeService.checkNetworkConnection();
+      this.nativeService.checkBatteryOnChange();
 
       this.loadUserInfo();
       this.loadDeviceInfo();
@@ -73,7 +73,7 @@ export class AboutPage {
 
   ionViewDidLeave(): void{
     console.log('AboutView Did Leave.');
-    this.native.unsubscribeAll();
+    this.nativeService.unsubscribeAll();
   }
 
   loadUserInfo() {
@@ -85,7 +85,7 @@ export class AboutPage {
   }  
 
   loadDeviceInfo() {
-    this.deviceInfo = this.native.getDeviceInfo();
+    this.deviceInfo = this.nativeService.getDeviceInfo();
   }
 
   loadNetworkInfo() {
@@ -118,7 +118,7 @@ export class AboutPage {
   }
 
   logout() {
-    this.auth.logout();
+    this.authService.logout();
     const root = this.app.getRootNav();
     root.popToRoot();
   }

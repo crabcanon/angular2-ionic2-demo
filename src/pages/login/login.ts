@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { NgForm } from '@angular/forms';
-import { Auth } from '../../providers/auth';
+import { AuthService } from '../../providers/auth-service';
 import { TabsPage } from '../tabs/tabs';
 
 /*
@@ -23,7 +23,7 @@ export class LoginPage {
     public navParams: NavParams, 
     public alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
-    public auth: Auth
+    public authService: AuthService
   ) { }
 
   ionViewDidLoad() {
@@ -48,12 +48,12 @@ export class LoginPage {
     loader.present();
 
     if (form.valid) {
-      this.auth.login(this.login.username, this.login.password).subscribe(data => {
+      this.authService.login(this.login.username, this.login.password).subscribe(data => {
         console.log('Login Data: ', data, data.roles[0]);
         let role = data.roles[0];
-        this.auth.setUserRole(role);
-        this.auth.setTokenInfo(data);
-        this.auth.startupCustomizedExpiration();
+        this.authService.setUserRole(role);
+        this.authService.setTokenInfo(data);
+        this.authService.startupCustomizedExpiration();
         if (role === 'user_admin') {
           this.navCtrl.push(TabsPage, { tabId: 1 });
         } else {

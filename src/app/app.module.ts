@@ -8,8 +8,9 @@ import { ReposPage } from '../pages/repos/repos';
 import { UploadPage } from '../pages/upload/upload';
 import { CameraPage } from '../pages/camera/camera';
 import { TabsPage } from '../pages/tabs/tabs';
-import { Auth } from '../providers/auth';
-import { Native } from '../providers/native';
+import { AuthService } from '../providers/auth-service';
+import { NativeService } from '../providers/native-service';
+import { SqliteService } from '../providers/sqlite-service';
 
 // export function provideStorage() {
 //   return new Storage(['sqlite', 'websql', 'indexeddb'], {name: 'upmdb'});
@@ -43,6 +44,12 @@ import { Native } from '../providers/native';
     CameraPage,
     TabsPage
   ],
-  providers: [Auth, Native, Storage, {provide: ErrorHandler, useClass: IonicErrorHandler}]
+  providers: [
+    AuthService, 
+    NativeService, 
+    SqliteService, 
+    Storage, 
+    {provide: ErrorHandler, useClass: IonicErrorHandler}
+  ]
 })
 export class AppModule {}

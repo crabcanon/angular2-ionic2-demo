@@ -3,7 +3,7 @@ import { Platform, NavController, Events, AlertController } from 'ionic-angular'
 import { StatusBar, Splashscreen, BackgroundMode } from 'ionic-native';
 
 import { LoginPage } from '../pages/login/login';
-import { Auth } from '../providers/auth';
+import { AuthService } from '../providers/auth-service';
 
 export interface AlertInterface {
   title: string;
@@ -32,7 +32,7 @@ export class MyApp {
     public platform: Platform,
     public events: Events,
     public alertCtrl: AlertController,
-    public auth: Auth
+    public authService: AuthService
   ) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
@@ -52,7 +52,7 @@ export class MyApp {
       this.events.subscribe('auth:customizedExpiration', (time) => {
         console.log('User is automatically logged out at ' + time);
         this.presentAlert(this.sessionAlert);
-        this.auth.logout();
+        this.authService.logout();
         this.navCtrl.popToRoot();
       });
 
@@ -62,11 +62,11 @@ export class MyApp {
 
       this.platform.pause.subscribe(() => {
         console.log('App paused!');
-        this.auth.pauseCustomizedExpiration();
+        this.authService.pauseCustomizedExpiration();
       });
       this.platform.resume.subscribe(() => {
         console.log('App resumed!');
-        this.auth.resumeCustomizedExpiration();
+        this.authService.resumeCustomizedExpiration();
       });
     });
   }
