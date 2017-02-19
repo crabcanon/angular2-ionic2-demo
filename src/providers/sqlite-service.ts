@@ -18,7 +18,7 @@ export class SqliteService {
   }
 
   openDatabase(dbName: string, dbLocation: string) {
-    return db.openDatabase({ name: dbName, location: dbLocation })
+    return db.openDatabase({ name: dbName, location: dbLocation });
   }
 
   getRepos(startNum: number) {
