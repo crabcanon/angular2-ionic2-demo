@@ -62,7 +62,7 @@ PS: With different roles, you will see different contents and initial routes.
 - [x] Enrich Auth0 JWT Payload with roles info
 - [x] Customisable login page with Auth0 RESTful endpoints
 - [x] Role-based authentication
-- [x] Session-expiration handler
+- [x] Customisable session-expiration handlers(two use cases: JWT metadata or customisable expiration time period)
 - [x] Share data between pages by different methods
 - [x] Preloading SQLite database
 - [x] InfiniteScroll for list
