@@ -27,6 +27,9 @@ export class AuthService {
 
   // secureStorage: SecureStorage = new SecureStorage();
   jwtHelper: JwtHelper = new JwtHelper();
+  startTime: number;
+  expirationInterval: number;
+  source: any;
   pauser = new Subject();
   idToken: string;
   accessToken: string;
@@ -49,6 +52,7 @@ export class AuthService {
     // }, error => {
     //   console.log(error);
     // })
+    this.expirationInterval = 60000;
   }
 
   public authenticated() {
@@ -122,17 +126,25 @@ export class AuthService {
 
   /* Customize the expiration timer */
   public startupCustomizedExpiration() {
-    let source = Observable.timer(60000);
-    let pausable = this.pauser.switchMap(paused => paused ? Observable.never() : source);
+    this.startTime = Date.now();
+    console.log('startupCustomizedExpiration: ', this.startTime, this.expirationInterval);
+    this.source = Observable.timer(this.expirationInterval);
+    let pausable = this.pauser.switchMap(paused => paused ? Observable.never() : this.source);
     pausable.subscribe(() => this.events.publish('auth:customizedExpiration', Date.now()));
     this.pauser.next(false);
   }
 
-  public pauseCustomizedExpiration() {
+  public pauseCustomizedExpiration(pauseTime) {
+    let usedExpirationInterval = pauseTime - this.startTime;
+    console.log('usedExpirationInterval: ', usedExpirationInterval);
+    this.expirationInterval = this.expirationInterval - usedExpirationInterval; 
     this.pauser.next(true);
   }
 
-  public resumeCustomizedExpiration() {
+  public resumeCustomizedExpiration(resumeTime) {
+    this.startTime = resumeTime;
+    console.log('resumeTime: ', resumeTime, this.expirationInterval);
+    this.source = Observable.timer(this.expirationInterval);
     this.pauser.next(false);
   }
 
@@ -153,6 +165,7 @@ export class AuthService {
   }
 
   public logout() {
+    this.expirationInterval = 60000;
     this.storage.remove('id_token').then(() => console.log('id_token removed!'), error => console.log(error));
     this.storage.remove('access_token').then(() => console.log('access_token removed!'), error => console.log(error));
     this.storage.remove('token_info').then(() => console.log('token_info removed!'), error => console.log(error));

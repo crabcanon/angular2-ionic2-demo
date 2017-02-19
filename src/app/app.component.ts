@@ -61,12 +61,14 @@ export class MyApp {
       // });
 
       this.platform.pause.subscribe(() => {
-        console.log('App paused!');
-        this.authService.pauseCustomizedExpiration();
+        console.log('App paused: ', Date.now());
+        let pauseTime = Date.now();
+        this.authService.pauseCustomizedExpiration(pauseTime);
       });
       this.platform.resume.subscribe(() => {
-        console.log('App resumed!');
-        this.authService.resumeCustomizedExpiration();
+        console.log('App resumed: ', Date.now());
+        let resumeTime = Date.now();
+        this.authService.resumeCustomizedExpiration(resumeTime);
       });
     });
   }
