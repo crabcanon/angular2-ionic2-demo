@@ -7,7 +7,7 @@ An experimental project for testing Ionic2 role-based authentication, SQLite pre
 This repo could be used to explore:
 
 1. How to enrich Auth0 JWT Payload with roles/groups/permissions info by using [Auth0 Authorization Extension](https://auth0.com/docs/extensions/authorization-extension).
-2. How to implement a customisable login page with Auth0 endpoints(instead of using Auth0 JS SDK).
+2. How to implement a customisable login page with [Auth0 endpoints](https://auth0.com/docs/api/authentication#introduction) instead of using Auth0 JS SDK.
 3. How to use RxJS to handle `nested async calls` and `session-expiration` problem(renew JWT or force to re-login).
 4. How to customise Ionic2 components based on different user roles.
 5. How to share data between controllers and services by
@@ -16,10 +16,10 @@ This repo could be used to explore:
     * Ionic2 publish/subscribe pattern for async data flow
     * Mobile native storage
     * SQLite DB
-6. How to use cordova plugins(both ionic-native and other extra cordova plugins) to access mobile native functionalities, such as network, device, battery, camera, file system etc. 
+6. How to use [cordova plugins](https://cordova.apache.org/plugins/?platforms=cordova-android%2Ccordova-ios%2Ccordova-windows)(both ionic-native and other extra cordova plugins) to access mobile native functionalities, such as network, device, battery, camera, file system etc. 
 7. How to prepare and preload SQLite database once users install the app in order to support `OFFLINE Mode`.
-8. How to implement InfiniteScroll for lists with async SQL queries.
-9. How to integrate Firebase(customisable token authentication and real-time storage) to support `ONLINE Mode`.
+8. How to implement [InfiniteScroll](https://ionicframework.com/docs/v2/api/components/infinite-scroll/InfiniteScroll/) for lists with `async SQL queries`.
+9. How to integrate [Firebase](https://firebase.google.com/docs/web/setup)(customisable token authentication and real-time storage) to support `ONLINE Mode`.
 
 ## Get started
 
