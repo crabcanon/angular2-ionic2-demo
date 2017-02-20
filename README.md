@@ -7,7 +7,7 @@ An experimental project for testing Ionic2 role-based authentication, SQLite pre
 This repo could be used to explore:
 
 1. How to enrich Auth0 JWT Payload with roles/groups/permissions info by using [Auth0 Authorization Extension](https://auth0.com/docs/extensions/authorization-extension).
-2. How to implement a customisable login page with [Auth0 endpoints](https://auth0.com/docs/api/authentication#introduction) instead of using Auth0 JS SDK.
+2. How to implement a customisable login page with [Auth0 endpoints](https://auth0.com/docs/api/authentication#introduction) instead of using [Auth0 JS SDK](https://auth0.com/docs/libraries/auth0js) and [Auth0 UI Components](https://auth0.com/docs/libraries/lock).
 3. How to use RxJS to handle `nested async calls` and `session-expiration` problem(renew JWT or force to re-login).
 4. How to customise Ionic2 components based on different user roles.
 5. How to share data between controllers and services by
