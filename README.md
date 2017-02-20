@@ -17,9 +17,9 @@ This repo could be used to explore:
     * Mobile native storage
     * SQLite DB
 6. How to use cordova plugins(both ionic-native and other extra cordova plugins) to access mobile native functionalities, such as network, device, battery, camera, file system etc. 
-7. How to prepare and preload SQLite database once users install the app.
-8. How to implement InfiniteScroll for lists.
-9. How to integrate Firebase with the mobile app.
+7. How to prepare and preload SQLite database once users install the app in order to support `OFFLINE Mode`.
+8. How to implement InfiniteScroll for lists with async SQL queries.
+9. How to integrate Firebase(customisable token authentication and real-time storage) with the mobile app to support `ONLINE Mode`.
 
 ## Get started
 
@@ -44,7 +44,7 @@ $ ionic build android
 $ ionic emulate ios/android(your choice)
 
 // Do not test this project with browsers.
-// Use Android Studio or Xcode instead of running `ionic emulate`.
+// Open project from Android Studio or Xcode instead of running `ionic emulate`.
 // Import project from the platforms/ios or platforms/android directory.
 ```
 
