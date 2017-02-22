@@ -52,8 +52,14 @@ export class MyApp {
       this.events.subscribe('auth:customizedExpiration', (time) => {
         console.log('User is automatically logged out at ' + time);
         this.presentAlert(this.sessionAlert);
-        this.authService.logout();
-        this.navCtrl.popToRoot();
+        this.authService.logout().subscribe(data => {
+          console.log('id_token removed!', data[0]);
+          console.log('token_info removed!', data[1]);
+        }, error => {
+          console.log('Logout Error: ', JSON.stringify(error));
+        }, () => {
+          this.navCtrl.popToRoot();
+        });
       });
 
       // this.events.subscribe('auth:tokenExpiration', () => {

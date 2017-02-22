@@ -118,9 +118,15 @@ export class AboutPage {
   }
 
   logout() {
-    this.authService.logout();
-    const root = this.app.getRootNav();
-    root.popToRoot();
+    this.authService.logout().subscribe(data => {
+      console.log('id_token removed!', data[0]);
+      console.log('token_info removed!', data[1]);
+    }, error => {
+      console.log('Logout Error: ', JSON.stringify(error));
+    }, () => {
+      const root = this.app.getRootNav();
+      root.popToRoot();
+    });
   }
 
 }

@@ -25,14 +25,12 @@ export interface UserInfoInterface {
 @Injectable()
 export class AuthService {
 
-  // secureStorage: SecureStorage = new SecureStorage();
   jwtHelper: JwtHelper = new JwtHelper();
   startTime: number;
   expirationInterval: number;
   source: any;
   pauser = new Subject();
   idToken: string;
-  accessToken: string;
   userRole: string;
   tokenInfo: any;
   userInfo: UserInfoInterface;
@@ -62,6 +60,7 @@ export class AuthService {
   public login(username: string, password: string) {
     let firstUrl = 'https://tieto-upm.eu.auth0.com/oauth/ro';
     let secondUrl = 'https://tieto-upm.eu.auth0.com/tokeninfo';
+    let thirdUrl = 'https://tieto-upm.eu.auth0.com/delegation';
     let header = new Headers({ 'Content-Type': 'application/json' });
     let body = {
       'client_id': '8wP6CKrG7YAC1ggU1syVlrJOGyjPU4VE',
@@ -76,14 +75,8 @@ export class AuthService {
       })
       .flatMap(obj => {
         this.idToken = obj['id_token'];
-        this.accessToken = obj['access_token'];
         this.storage.set('id_token', obj['id_token']).then(() => {
           console.log('id_token saved!')
-        }, (error) => {
-          console.log(error);
-        });
-        this.storage.set('access_token', obj['access_token']).then(() => {
-          console.log('access_token saved!')
         }, (error) => {
           console.log(error);
         });
@@ -148,6 +141,7 @@ export class AuthService {
     this.pauser.next(false);
   }
 
+  /* angular-jwt implementation to check the expiration metadata */
   public startupTokenExpiration() {
     if (this.authenticated()) {
       let source = Observable.of(this.idToken).flatMap(token => {
@@ -166,9 +160,10 @@ export class AuthService {
 
   public logout() {
     this.expirationInterval = 60000;
-    this.storage.remove('id_token').then(() => console.log('id_token removed!'), error => console.log(error));
-    this.storage.remove('access_token').then(() => console.log('access_token removed!'), error => console.log(error));
-    this.storage.remove('token_info').then(() => console.log('token_info removed!'), error => console.log(error));
+    return Observable.forkJoin(
+      Observable.fromPromise(this.storage.remove('id_token')),
+      Observable.fromPromise(this.storage.remove('token_info'))
+    );
   }
 
 }
