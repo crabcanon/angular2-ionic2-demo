@@ -41,10 +41,13 @@ export class MyApp {
       Splashscreen.hide();
       BackgroundMode.disable();
 
+
       if (platform.is('ios')) {
-        window['plugins'].sqlDB.copy('data.db', 2, this.copySucceeded, this.copyFailed);
+        window['plugins'].sqlDB.remove('data.db', 2, this.removeDBSucceeded, this.removeDBFailed);
+        window['plugins'].sqlDB.copy('data.db', 2, this.copyDBSucceeded, this.copyDBFailed);
       } else if (platform.is('android')) {
-        window['plugins'].sqlDB.copy('data.db', 0, this.copySucceeded, this.copyFailed);
+        window['plugins'].sqlDB.remove('data.db', 0, this.removeDBSucceeded, this.removeDBFailed);
+        window['plugins'].sqlDB.copy('data.db', 0, this.copyDBSucceeded, this.copyDBFailed);
       } else {
         this.presentAlert(this.databseAlert);
       }
@@ -93,11 +96,19 @@ export class MyApp {
     newAlert.present();
   }
 
-  copySucceeded() {
+  removeDBSucceeded() {
+    console.log('Remove Database Succeeded!');
+  }
+
+  removeDBFailed(e) {
+    console.log('Remove Database Failed: ', JSON.stringify(e));
+  }
+
+  copyDBSucceeded() {
     console.log('Database has been copied to the target location!');
   }
 
-  copyFailed(e) {
+  copyDBFailed(e) {
     switch (e.code) {
       case 516:
         console.log('Database has existed in the target location!');
