@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../../providers/auth-service';
+import { SignupPage } from '../signup/signup';
 import { TabsPage } from '../tabs/tabs';
 
 /*
@@ -50,7 +51,7 @@ export class LoginPage {
     if (form.valid) {
       this.authService.login(this.login.username, this.login.password).subscribe(data => {
         console.log('Login Data: ', data, data.roles[0]);
-        let role = data.roles[0];
+        let role = data.roles[0] ? data.roles[0] : 'user_admin';
         this.authService.setUserRole(role);
         this.authService.setTokenInfo(data);
         if (role === 'user_admin') {
@@ -67,5 +68,9 @@ export class LoginPage {
         alert.present();
       });
     }
+  }
+
+  onSignup() {
+    this.navCtrl.push(SignupPage);
   }
 }

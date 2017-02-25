@@ -1,25 +1,27 @@
 <!--
-  Generated template for the Login page.
+  Generated template for the Signup page.
 
   See http://ionicframework.com/docs/v2/components/#navigation for more info on
   Ionic pages and navigation.
 -->
 <ion-header>
+
   <ion-navbar>
-    <ion-title>Login</ion-title>
+    <ion-title>Signup</ion-title>
   </ion-navbar>
+
 </ion-header>
 
 
 <ion-content>
-  <form #loginForm="ngForm">
+  <form #signupForm="ngForm">
     <ion-list>
       <ion-item>
         <ion-label color="primary" stacked>Username</ion-label>
         <ion-input 
-          [(ngModel)]="login.username" 
+          [(ngModel)]="signup.username" 
           name="username" 
-          type="email" 
+          type="text" 
           #username="ngModel" 
           spellcheck="false"
           autocapitalize="off"
@@ -31,9 +33,25 @@
         </p>
       </ion-item>
       <ion-item>
+        <ion-label color="primary" stacked>Email</ion-label>
+        <ion-input 
+          [(ngModel)]="signup.email" 
+          name="email" 
+          type="email" 
+          #email="ngModel" 
+          spellcheck="false"
+          autocapitalize="off"
+          required
+        >
+        </ion-input>
+        <p ion-text [hidden]="!email.valid || submitted === false" color="danger" padding-left>
+          Email is required
+        </p>
+      </ion-item>
+      <ion-item>
         <ion-label color="primary" stacked>Password</ion-label>
         <ion-input
-          [(ngModel)]="login.password" 
+          [(ngModel)]="signup.password" 
           name="password"
           type="password"
           #password="ngModel"
@@ -50,13 +68,10 @@
       <ion-col>
         <button 
           ion-button 
-          [disabled]="!loginForm.form.valid" 
-          (click)="onLogin(loginForm)" 
+          [disabled]="!signupForm.form.valid" 
+          (click)="onSignup(signupForm)" 
           type="submit" 
-          block>Login</button>
-      </ion-col>
-      <ion-col>
-        <button ion-button (click)="onSignup()" color="light" block>Signup</button>
+          block>Signup</button>
       </ion-col>
     </ion-row>
   </form>

@@ -28,6 +28,7 @@ export interface UserInfoInterface {
 @Injectable()
 export class AuthService {
 
+  header: Headers = new Headers({ 'Content-Type': 'application/json' });
   jwtHelper: JwtHelper = new JwtHelper();
   startTime: number;
   expirationInterval: number;
@@ -47,12 +48,25 @@ export class AuthService {
     this.expirationInterval = 60000;
   }
 
+  public signup(signupObj: any) {
+    let body = {
+      'username': signupObj.username,
+      'email': signupObj.email,
+      'password': signupObj.password,
+      'client_id': GLOBALS['AUTH0_CLIENT_ID'],
+      'connection': GLOBALS['AUTH0_CONNECTION']
+    };
+    return this.http.post(GLOBALS['AUTH0_SIGNUP_URL'], JSON.stringify(body), {headers: this.header})
+      .map((res: Response) => {
+        return res.json();
+      });
+  }
+
   public authenticated() {
     return tokenNotExpired('id_token', this.idToken);
   }
 
   public login(username: string, password: string) {
-    let header = new Headers({ 'Content-Type': 'application/json' });
     let body = {
       'username': username,
       'password': password,
@@ -60,7 +74,7 @@ export class AuthService {
       'connection': GLOBALS['AUTH0_CONNECTION'],
       'scope': GLOBALS['AUTH0_SCOPE']
     };
-    return this.http.post(GLOBALS['AUTH0_OAUTH_URL'], JSON.stringify(body), {headers: header})
+    return this.http.post(GLOBALS['AUTH0_OAUTH_URL'], JSON.stringify(body), {headers: this.header})
       .map((res: Response) => {
         return res.json();
       })
@@ -71,7 +85,7 @@ export class AuthService {
         }, (error) => {
           console.log(error);
         });
-        return this.http.post(GLOBALS['AUTH0_TOKENINFO_URL'], JSON.stringify({'id_token': obj['id_token']}), {headers: header})
+        return this.http.post(GLOBALS['AUTH0_TOKENINFO_URL'], JSON.stringify({'id_token': obj['id_token']}), {headers: this.header})
       })
       .map((res: Response) => res.json());
   }

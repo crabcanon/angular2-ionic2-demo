@@ -16,6 +16,7 @@ export interface AlertInterface {
 })
 export class MyApp {
   @ViewChild('nav') navCtrl: NavController;
+  
   public rootPage = LoginPage;
   public sessionAlert: AlertInterface = {
     title: 'Will logout soon...',

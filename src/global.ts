@@ -1,4 +1,5 @@
 export const GLOBALS = Object.freeze({
+  AUTH0_SIGNUP_URL: 'https://tieto-upm.eu.auth0.com/dbconnections/signup',
   AUTH0_OAUTH_URL: 'https://tieto-upm.eu.auth0.com/oauth/ro',
   AUTH0_TOKENINFO_URL: 'https://tieto-upm.eu.auth0.com/tokeninfo',
   AUTH0_DELEGATION_URL: 'https://tieto-upm.eu.auth0.com/delegation',
