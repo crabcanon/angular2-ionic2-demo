@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, Response } from '@angular/http';
 import { tokenNotExpired, JwtHelper } from 'angular2-jwt';
-// import { SecureStorage } from 'ionic-native';
+
 import { Storage } from '@ionic/storage';
 import { Events, Platform } from 'ionic-angular';
+
 import { Observable, Subject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+
+import { GLOBALS } from '../global';
 
 export interface UserInfoInterface {
   username: string,
@@ -41,15 +44,6 @@ export class AuthService {
     public platform: Platform,
     public storage: Storage
   ) {
-    // platform.ready().then(() => {
-    //   this.storage.create('secure_storage').then(() => {
-    //     console.log('SecureStorage is ready!');
-    //   }, error => {
-    //     console.log(error);
-    //   });
-    // }, error => {
-    //   console.log(error);
-    // })
     this.expirationInterval = 60000;
   }
 
@@ -58,18 +52,15 @@ export class AuthService {
   }
 
   public login(username: string, password: string) {
-    let firstUrl = 'https://tieto-upm.eu.auth0.com/oauth/ro';
-    let secondUrl = 'https://tieto-upm.eu.auth0.com/tokeninfo';
-    let thirdUrl = 'https://tieto-upm.eu.auth0.com/delegation';
     let header = new Headers({ 'Content-Type': 'application/json' });
     let body = {
-      'client_id': '8wP6CKrG7YAC1ggU1syVlrJOGyjPU4VE',
       'username': username,
       'password': password,
-      'connection': 'Username-Password-Authentication',
-      'scope': 'openid'
+      'client_id': GLOBALS['AUTH0_CLIENT_ID'],
+      'connection': GLOBALS['AUTH0_CONNECTION'],
+      'scope': GLOBALS['AUTH0_SCOPE']
     };
-    return this.http.post(firstUrl, JSON.stringify(body), {headers: header})
+    return this.http.post(GLOBALS['AUTH0_OAUTH_URL'], JSON.stringify(body), {headers: header})
       .map((res: Response) => {
         return res.json();
       })
@@ -80,7 +71,7 @@ export class AuthService {
         }, (error) => {
           console.log(error);
         });
-        return this.http.post(secondUrl, JSON.stringify({'id_token': obj['id_token']}), {headers: header})
+        return this.http.post(GLOBALS['AUTH0_TOKENINFO_URL'], JSON.stringify({'id_token': obj['id_token']}), {headers: header})
       })
       .map((res: Response) => res.json());
   }
@@ -119,26 +110,32 @@ export class AuthService {
 
   /* Customize the expiration timer */
   public startupCustomizedExpiration() {
-    this.startTime = Date.now();
-    console.log('startupCustomizedExpiration: ', this.startTime, this.expirationInterval);
-    this.source = Observable.timer(this.expirationInterval);
-    let pausable = this.pauser.switchMap(paused => paused ? Observable.never() : this.source);
-    pausable.subscribe(() => this.events.publish('auth:customizedExpiration', Date.now()));
-    this.pauser.next(false);
+    if (this.authenticated()) {
+      this.startTime = Date.now();
+      console.log('startupCustomizedExpiration: ', this.startTime, this.expirationInterval);
+      this.source = Observable.timer(this.expirationInterval);
+      let pausable = this.pauser.switchMap(paused => paused ? Observable.never() : this.source);
+      pausable.subscribe(() => this.events.publish('auth:customizedExpiration', Date.now()));
+      this.pauser.next(false);
+    }
   }
 
   public pauseCustomizedExpiration(pauseTime) {
-    let usedExpirationInterval = pauseTime - this.startTime;
-    console.log('usedExpirationInterval: ', usedExpirationInterval);
-    this.expirationInterval = this.expirationInterval - usedExpirationInterval; 
-    this.pauser.next(true);
+    if (this.authenticated()) {
+      let usedExpirationInterval = pauseTime - this.startTime;
+      console.log('usedExpirationInterval: ', usedExpirationInterval);
+      this.expirationInterval = this.expirationInterval - usedExpirationInterval; 
+      this.pauser.next(true);
+    }
   }
 
   public resumeCustomizedExpiration(resumeTime) {
-    this.startTime = resumeTime;
-    console.log('resumeTime: ', resumeTime, this.expirationInterval);
-    this.source = Observable.timer(this.expirationInterval);
-    this.pauser.next(false);
+    if (this.authenticated()) {
+      this.startTime = resumeTime;
+      console.log('resumeTime: ', resumeTime, this.expirationInterval);
+      this.source = Observable.timer(this.expirationInterval);
+      this.pauser.next(false);
+    }
   }
 
   /* angular-jwt implementation to check the expiration metadata */
@@ -160,6 +157,10 @@ export class AuthService {
 
   public logout() {
     this.expirationInterval = 60000;
+    this.idToken = '';
+    this.userRole = '';
+    this.tokenInfo = null;
+    this.pauser.unsubscribe();
     return Observable.forkJoin(
       Observable.fromPromise(this.storage.remove('id_token')),
       Observable.fromPromise(this.storage.remove('token_info'))
