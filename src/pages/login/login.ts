@@ -53,13 +53,13 @@ export class LoginPage {
         let role = data.roles[0];
         this.authService.setUserRole(role);
         this.authService.setTokenInfo(data);
-        this.authService.startupCustomizedExpiration();
         if (role === 'user_admin') {
           this.navCtrl.push(TabsPage, { tabId: 1 });
         } else {
           this.navCtrl.push(TabsPage, { tabId: 0 });
         }
         loader.dismiss();
+        this.authService.startupCustomizedExpiration();
       }, error => {
         console.log('Login Error: ', error);
         loader.dismiss();
