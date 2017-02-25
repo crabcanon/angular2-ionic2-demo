@@ -21,24 +21,35 @@ export class SqliteService {
     return db.openDatabase({ name: dbName, location: dbLocation });
   }
 
-  getRepos(startNum: number) {
+  getRepos(tableName: string, startNum: number) {
+    let sqlQuery = `SELECT name, description, htmlurl\ 
+    FROM ${tableName}\ 
+    LIMIT ${startNum}, ${startNum + 50}`;
+
+    return this.queryReposTable(sqlQuery);
+  }
+
+  findRepos(tableName: string, repoName: string, startNum: number) {
+    let sqlQuery = `SELECT name, description, htmlurl\ 
+    FROM ${tableName}\ 
+    WHERE name LIKE '%${repoName}%'\ 
+    LIMIT ${startNum}, ${startNum + 50}`;
+
+    return this.queryReposTable(sqlQuery);
+  }
+
+  queryReposTable(sqlQuery) {
     return Observable.create((observer) => {
-      db.executeSql(`SELECT * FROM repos_json1 LIMIT ${startNum}, ${startNum + 50}`, []).then((data) => {
+      db.executeSql(sqlQuery, []).then((data) => {
+        let repos: any = [];
         if (data.rows.length > 0) {
-          let repos = [];
-          let repoDescription: string;
           for (let i = 0; i < data.rows.length; i++) {
-            repoDescription = data.rows.item(i).description ? data.rows.item(i).description : 'Unknown';  
-            repos.push({
-              name: data.rows.item(i).name, 
-              description: repoDescription,
-              url: data.rows.item(i).htmlurl
-            });
+            repos.push(data.rows.item(i));
           }
-          observer.next(repos);
-          observer.complete();
-        }
-      }, error => {
+        } 
+        observer.next(repos);
+        observer.complete();
+      }, (error) => {
         observer.error(error);
       });
     });

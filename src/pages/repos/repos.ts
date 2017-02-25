@@ -21,6 +21,7 @@ export interface RepoInterface {
 export class ReposPage {
   public repos: RepoInterface[] = [];
   private startNum: number = 1;
+  private searchTerm: string = '';
 
   constructor(
     public navCtrl: NavController, 
@@ -52,7 +53,7 @@ export class ReposPage {
 
   loadRepos() {
     return new Promise((resolve, reject) => {
-      this.sqliteService.getRepos(this.startNum).subscribe((data) => {
+      this.sqliteService.getRepos('repos_json1', this.startNum).subscribe((data) => {
         console.log(data);
         this.repos = this.repos.concat(data);
       }, (error) => {
@@ -65,12 +66,50 @@ export class ReposPage {
     });
   }
 
+  searchRepos() {
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      return new Promise((resolve, reject) => {
+        this.sqliteService.findRepos('repos_json1', this.searchTerm, this.startNum).subscribe((data) => {
+          console.log(data);
+          this.repos = this.repos.concat(data);
+        }, (error) => {
+          console.log('Finding Repos Error: ', JSON.stringify(error));
+          reject(error);
+        }, () => {
+          console.log('Finding Repos Finished!');
+          resolve(true);
+        });
+      });
+    }
+  }
+
+  searchFocus() {
+    this.repos = [];
+    this.startNum = 1;
+  }
+
+  searchBlur() {
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      this.searchRepos();
+    } else {
+      this.searchClear();
+    }
+  }
+
+  searchClear() {
+    this.repos = [];
+    this.startNum = 1;
+    this.loadRepos();
+  }
+
   loadMoreRepos(infiniteScroll:any) {
-     console.log('Loading More Repos: startNum is currently ' + this.startNum);
-     this.startNum += 50;
-     
-     this.loadRepos().then(() => {
-       infiniteScroll.complete();
-     });
+    console.log('Loading More Repos: startNum is currently ' + this.startNum);
+    this.startNum += 50;
+
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      this.searchRepos().then(() => infiniteScroll.complete());
+    } else {
+      this.loadRepos().then(() => infiniteScroll.complete());  
+    }
   }
 }

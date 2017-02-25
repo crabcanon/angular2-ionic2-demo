@@ -8,6 +8,14 @@
   <ion-navbar>
     <ion-title>Github Repos</ion-title>
   </ion-navbar>
+  <ion-searchbar 
+    [(ngModel)]="searchTerm" 
+    (ionInput)="searchRepos()"
+    (ionFocus)="searchFocus()"
+    (ionBlur)="searchBlur()"
+    (ionClear)="searchClear()"
+  >
+  </ion-searchbar>
 </ion-header>
 
 
@@ -18,7 +26,7 @@
       <ion-icon item-left name="copy"></ion-icon>
       <h2>{{repo.name}}</h2>
       <p>{{repo.description}}</p>
-      <a ion-button clear item-right href="{{repo.url}}">View</a>
+      <a ion-button clear item-right href="{{repo.htmlurl}}">View</a>
     </ion-item>
   </ion-list>
 
