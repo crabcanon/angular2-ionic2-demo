@@ -38,7 +38,7 @@ export class SqliteService {
     return this.queryReposTable(sqlQuery);
   }
 
-  queryReposTable(sqlQuery) {
+  queryReposTable(sqlQuery: string) {
     return Observable.create((observer) => {
       db.executeSql(sqlQuery, []).then((data) => {
         let repos: any = [];
