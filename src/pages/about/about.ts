@@ -119,8 +119,7 @@ export class AboutPage {
 
   logout() {
     this.authService.logout().subscribe(data => {
-      console.log('id_token removed!', data[0]);
-      console.log('token_info removed!', data[1]);
+      console.log('id_token and token_info removed!');
     }, error => {
       console.log('Logout Error: ', JSON.stringify(error));
     }, () => {
