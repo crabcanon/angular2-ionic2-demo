@@ -28,11 +28,11 @@ export class SignupPage {
     console.log('ionViewDidLoad SignupPage');
   }
 
-  presentLoader(text) {
+  presentLoader(text: string) {
     return this.loadingCtrl.create({ content: text });
   }
 
-  presentAlert(title, subTitle, button) {
+  presentAlert(title: string, subTitle: any, button: string) {
     return this.alertCtrl.create({
       title: title,
       subTitle: subTitle,

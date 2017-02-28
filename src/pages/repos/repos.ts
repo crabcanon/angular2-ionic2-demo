@@ -102,7 +102,7 @@ export class ReposPage {
     this.loadRepos();
   }
 
-  loadMoreRepos(infiniteScroll:any) {
+  loadMoreRepos(infiniteScroll: any) {
     console.log('Loading More Repos: startNum is currently ' + this.startNum);
     this.startNum += 50;
 
