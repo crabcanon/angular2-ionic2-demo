@@ -67,14 +67,15 @@ export class AuthService {
   }
 
   public login(username: string, password: string) {
-    let body = {
+    let body = JSON.stringify({
       'username': username,
       'password': password,
       'client_id': GLOBALS['AUTH0_CLIENT_ID'],
       'connection': GLOBALS['AUTH0_CONNECTION'],
       'scope': GLOBALS['AUTH0_SCOPE']
-    };
-    return this.http.post(GLOBALS['AUTH0_OAUTH_URL'], JSON.stringify(body), {headers: this.header})
+    });
+
+    return this.http.post(GLOBALS['AUTH0_OAUTH_URL'], body, {headers: this.header})
       .map((res: Response) => {
         return res.json();
       })
@@ -85,9 +86,20 @@ export class AuthService {
         }, (error) => {
           console.log(error);
         });
-        return this.http.post(GLOBALS['AUTH0_TOKENINFO_URL'], JSON.stringify({'id_token': obj['id_token']}), {headers: this.header})
-      })
-      .map((res: Response) => res.json());
+
+        let bodyOne = JSON.stringify({
+          'client_id': GLOBALS['AUTH0_CLIENT_ID'],
+          'grant_type': GLOBALS['FIREBASE_GRANT_TYPE'],
+          'scope': GLOBALS['FIREBASE_SCOPE'],
+          'id_token': obj['id_token']
+        });
+        let bodyTwo = JSON.stringify({'id_token': obj['id_token']});
+
+        let httpPostOne = this.http.post(GLOBALS['AUTH0_DELEGATION_URL'], bodyOne, {headers: this.header}).map((res: Response) => res.json());
+        let httpPostTwo = this.http.post(GLOBALS['AUTH0_TOKENINFO_URL'], bodyTwo, {headers: this.header}).map((res: Response) => res.json());
+
+        return Observable.forkJoin(httpPostOne, httpPostTwo); 
+      });
   }
 
   public setUserRole(role) {
@@ -113,7 +125,7 @@ export class AuthService {
         username: info['nickname'],
         email: info['email'],
         emailVerified: info['email_verified'],
-        role: info['roles'][0],
+        role: info['roles'][0] ? info['roles'][0] : this.userRole,
         createAt: info['created_at'].split('T')[0]
       };
       this.events.publish('auth:getUserInfo', this.userInfo);

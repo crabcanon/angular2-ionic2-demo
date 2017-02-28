@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { NgForm } from '@angular/forms';
-import { AuthService } from '../../providers/auth-service';
 import { SignupPage } from '../signup/signup';
 import { TabsPage } from '../tabs/tabs';
+
+import { AuthService } from '../../providers/auth-service';
+import { FirebaseService } from '../../providers/firebase-service';
 
 /*
   Generated class for the Login page.
@@ -16,56 +18,76 @@ import { TabsPage } from '../tabs/tabs';
   templateUrl: 'login.html'
 })
 export class LoginPage {
-  login: { username?: string, password?: string } = {};
-  submitted = false;
+  private login: { username?: string, password?: string } = {};
+  private submitted: boolean = false;
+  private loader: any;
+  private alert: any;
 
   constructor(
     public navCtrl: NavController, 
     public navParams: NavParams, 
     public alertCtrl: AlertController,
     public loadingCtrl: LoadingController,
-    public authService: AuthService
+    public authService: AuthService,
+    public fbService: FirebaseService
   ) { }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad LoginPage');
   }
 
-  presentLoader(text) {
-    return this.loadingCtrl.create({ content: text });
+  presentLoader(text: string) {
+    this.loader = this.loadingCtrl.create({ content: text });
+    this.loader.present();
   }
 
-  presentAlert(title, subTitle, button) {
-    return this.alertCtrl.create({
+  dismissLoader() {
+    if (this.loader) this.loader.dismiss();
+  }
+
+  presentAlert(title: string, subTitle: any, button: string) {
+    this.alert = this.alertCtrl.create({
       title: title,
       subTitle: subTitle,
       buttons: [button]
     });
+    this.alert.present();
+  }
+
+  dismissAlert() {
+    if (this.alert) this.alert.dismiss();
   }
 
   onLogin(form: NgForm) {
     this.submitted = true;
-    let loader = this.presentLoader('Login...');
-    loader.present();
+    this.presentLoader('Login...');
 
     if (form.valid) {
       this.authService.login(this.login.username, this.login.password).subscribe(data => {
-        console.log('Login Data: ', data, data.roles[0]);
-        let role = data.roles[0] ? data.roles[0] : 'user_admin';
-        this.authService.setUserRole(role);
-        this.authService.setTokenInfo(data);
-        if (role === 'user_admin') {
-          this.navCtrl.push(TabsPage, { tabId: 1 });
-        } else {
-          this.navCtrl.push(TabsPage, { tabId: 0 });
-        }
-        loader.dismiss();
-        this.authService.startupCustomizedExpiration();
+        console.log('Login Data: ', data[0], data[1], data[1].roles[0]);
+        // Proceed the first resolved dataset(token for Firebase auth)
+        this.fbService.firebaseLoginWithCustomToken(data[0]['id_token']).then(() => {
+          console.log('Successfully signup Firebase!');
+          // Proceed the second resolved dataset which is returned by forJoin Observable.
+          let role = data[1].roles[0] ? data[1].roles[0] : 'super_admin';
+          this.authService.setUserRole(role);
+          this.authService.setTokenInfo(data[1]);
+          if (role === 'user_admin') {
+            this.navCtrl.push(TabsPage, { tabId: 1 });
+          } else {
+            this.navCtrl.push(TabsPage, { tabId: 0 });
+          }
+          this.dismissLoader();
+          this.authService.startupCustomizedExpiration();
+        }).catch(error => {
+          console.log('Signin Firebase Error: ', error);
+          this.dismissLoader();
+          this.presentAlert('Signin Firebase Error', JSON.stringify(error), 'Dismiss');
+        });
       }, error => {
         console.log('Login Error: ', error);
-        loader.dismiss();
-        let alert = this.presentAlert('Login Error', error, 'Dismiss');
-        alert.present();
+        this.dismissLoader();
+        this.presentAlert('Login Error', JSON.stringify(error), 'Dismiss');
       });
     }
   }

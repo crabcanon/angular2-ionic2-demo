@@ -1,6 +1,9 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
+import { AngularFireModule } from 'angularfire2';
+
+import { GLOBALS } from '../global';
 
 import { MyApp } from './app.component';
 import { LoginPage } from '../pages/login/login';
@@ -14,10 +17,15 @@ import { CameraPage } from '../pages/camera/camera';
 import { AuthService } from '../providers/auth-service';
 import { NativeService } from '../providers/native-service';
 import { SqliteService } from '../providers/sqlite-service';
+import { FirebaseService } from '../providers/firebase-service';
 
-// export function provideStorage() {
-//   return new Storage(['sqlite', 'websql', 'indexeddb'], {name: 'upmdb'});
-// }
+export const firebaseConfig = {
+  apiKey: GLOBALS['FIREBASE_API_KEY'],
+  authDomain: GLOBALS['FIREBASE_AUTH_DOMAIN'],
+  databaseURL: GLOBALS['FIREBASE_DATABASE_URL'],
+  storageBucket: GLOBALS['FIREBASE_STORAGE_BUCKET'],
+  messagingSenderId: GLOBALS['FIREBASE_MESSAGE_SENDER_ID']
+}
 
 @NgModule({
   declarations: [
@@ -37,7 +45,8 @@ import { SqliteService } from '../providers/sqlite-service';
         { component: LoginPage, name: 'Login', segment: 'login' },
         { component: TabsPage, name: 'Tabs', segment: 'tabs/:tabId' }
       ]
-    })
+    }),
+    AngularFireModule.initializeApp(firebaseConfig)
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -53,7 +62,8 @@ import { SqliteService } from '../providers/sqlite-service';
   providers: [
     AuthService, 
     NativeService, 
-    SqliteService, 
+    SqliteService,
+    FirebaseService,
     Storage, 
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
