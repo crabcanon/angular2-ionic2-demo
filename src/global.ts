@@ -6,7 +6,7 @@ export const GLOBALS = Object.freeze({
   AUTH0_CLIENT_ID: '8wP6CKrG7YAC1ggU1syVlrJOGyjPU4VE',
   AUTH0_CONNECTION: 'Username-Password-Authentication',
   AUTH0_SCOPE: 'openid',
-  FIREBASE_SCOPE: 'openid profile email',
+  FIREBASE_SCOPE: 'openid',
   FIREBASE_GRANT_TYPE: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
   FIREBASE_BASE_URL: 'https://ionic2-sqlite-firebase.firebaseio.com',
   FIREBASE_API_KEY: 'AIzaSyB2aZWPoqzcWu0bDlU52SxAUEQ6Oxkn3WY',
