@@ -61,7 +61,7 @@ export class MyApp {
         }, error => {
           console.log('Logout Error: ', JSON.stringify(error));
         }, () => {
-          this.navCtrl.popToRoot();
+          this.navCtrl.popTo(LoginPage);
         });
       });
 
