@@ -186,7 +186,6 @@ export class AuthService {
     this.idToken = '';
     this.userRole = '';
     this.tokenInfo = null;
-    this.pauser.unsubscribe();
     return Observable.forkJoin(
       Observable.fromPromise(this.storage.remove('id_token')),
       Observable.fromPromise(this.storage.remove('token_info'))
