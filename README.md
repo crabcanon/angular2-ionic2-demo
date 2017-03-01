@@ -66,6 +66,9 @@ PS: With different roles, you will see different contents and initial routes.
 - [x] Share data between pages by different methods
 - [x] Preloading SQLite database
 - [x] InfiniteScroll for list
+- [x] Search InfiniteScroll list
+- [x] Signin Firebase with custom tokens provided by Auth0
+- [x] CURD methods for Firebase nodes 
 - [ ] Take photoes and store to the iOS/Android camera gallery
 - [ ] Take photoes and store base64 data to Firebase
 - [ ] Upload files from devices to Firebase 
