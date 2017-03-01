@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
-import { AuthProviders, AngularFireAuth, FirebaseAuthState, AuthMethods } from 'angularfire2';
+import { 
+  AngularFire,
+  FirebaseListObservable, 
+  AuthProviders, 
+  AngularFireAuth, 
+  FirebaseAuthState, 
+  AuthMethods 
+} from 'angularfire2';
 
 /*
   Generated class for the FirebaseService provider.
@@ -12,8 +18,13 @@ import { AuthProviders, AngularFireAuth, FirebaseAuthState, AuthMethods } from '
 @Injectable()
 export class FirebaseService {
   private authState: FirebaseAuthState;
+  private users: FirebaseListObservable<any>;
+  private user: any;
 
-  constructor(public auth$: AngularFireAuth) {
+  constructor(
+    public auth$: AngularFireAuth,
+    public af: AngularFire
+  ) {
     console.log('Hello FirebaseService Provider');
     this.authState = auth$.getAuth();
     auth$.subscribe((state: FirebaseAuthState) => this.authState = state);
@@ -23,15 +34,35 @@ export class FirebaseService {
     return this.authState !== null;
   }
 
-  firebaseLogout(): void {
-    this.auth$.logout();
-  }
-
   firebaseLoginWithCustomToken(token: string) {
     return this.auth$.login(token, {
       provider: AuthProviders.Custom,
       method: AuthMethods.CustomToken
     });
+  }
+
+  firebaseLogout(): void {
+    this.auth$.logout();
+  }
+
+  createUser(userInfo: any) {
+    this.user = this.af.database.object(`/users/${userInfo.uid}/profile`);
+    this.user.set(userInfo);
+  }
+
+  updateUser(key: string, userInfo: any) {
+    this.user = this.af.database.object(`/users/${key}/profile`);
+    this.user.update(userInfo);
+  }
+
+  deleteUser(key: string) {
+    this.user = this.af.database.object(`/users/${key}`); 
+    this.user.remove();
+  }
+
+  deleteAllUsers() {
+    this.users = this.af.database.list('/users');
+    this.users.remove();
   }
 
 }

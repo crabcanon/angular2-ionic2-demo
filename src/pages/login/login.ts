@@ -66,10 +66,20 @@ export class LoginPage {
       this.authService.login(this.login.username, this.login.password).subscribe(data => {
         console.log('Login Data: ', data[0], data[1], data[1].roles[0]);
         // Proceed the first resolved dataset(token for Firebase auth)
-        this.fbService.firebaseLoginWithCustomToken(data[0]['id_token']).then(() => {
-          console.log('Successfully signup Firebase!');
+        let role = data[1].roles[0] ? data[1].roles[0] : 'super_admin';
+        this.fbService.firebaseLoginWithCustomToken(data[0]['id_token']).then((user) => {
+          console.log('Successfully SignIn Firebase: ', JSON.stringify(user));
+          let userInfo = {
+            uid: user['uid'],
+            email: data[1]['email'],
+            name: data[1]['nickname'],
+            role: role,
+            emailVerified: data[1]['email_verified'],
+            avatar: data[1]['picture']
+          };
+          this.fbService.createUser(userInfo);
+
           // Proceed the second resolved dataset which is returned by forJoin Observable.
-          let role = data[1].roles[0] ? data[1].roles[0] : 'super_admin';
           this.authService.setUserRole(role);
           this.authService.setTokenInfo(data[1]);
           if (role === 'user_admin') {
