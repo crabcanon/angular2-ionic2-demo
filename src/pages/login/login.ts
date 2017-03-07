@@ -68,7 +68,7 @@ export class LoginPage {
         // Proceed the first resolved dataset(token for Firebase auth)
         let role = data[1].roles[0] ? data[1].roles[0] : 'super_admin';
         this.fbService.firebaseLoginWithCustomToken(data[0]['id_token']).then((user) => {
-          console.log('Successfully SignIn Firebase: ', JSON.stringify(user));
+          console.log('Successfully signin Firebase: ', JSON.stringify(user));
           let userInfo = {
             uid: user['uid'],
             email: data[1]['email'],
@@ -77,8 +77,16 @@ export class LoginPage {
             emailVerified: data[1]['email_verified'],
             avatar: data[1]['picture']
           };
-          this.fbService.createUser(userInfo);
-
+          return userInfo;
+        }).catch(error => {
+          console.log('Signin Firebase Error: ', error);
+          this.dismissLoader();
+          this.presentAlert('Signin Firebase Error', JSON.stringify(error), 'Dismiss');
+        }).then((value) => {
+          console.log('Start creating Firebase user node: ', JSON.stringify(value));
+          return this.fbService.createUser(value);
+        }).then(() => {
+          console.log('Successfully create Firebase user node.');
           // Proceed the second resolved dataset which is returned by forJoin Observable.
           this.authService.setUserRole(role);
           this.authService.setTokenInfo(data[1]);
@@ -90,9 +98,9 @@ export class LoginPage {
           this.dismissLoader();
           this.authService.startupCustomizedExpiration();
         }).catch(error => {
-          console.log('Signin Firebase Error: ', error);
+          console.log('Create Firebase User Node Error: ', error);
           this.dismissLoader();
-          this.presentAlert('Signin Firebase Error', JSON.stringify(error), 'Dismiss');
+          this.presentAlert('Create Firebase User Node Error', JSON.stringify(error), 'Dismiss');
         });
       }, error => {
         console.log('Login Error: ', error);
