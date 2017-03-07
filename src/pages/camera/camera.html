@@ -5,18 +5,63 @@
   Ionic pages and navigation.
 -->
 <ion-header>
-
   <ion-navbar>
-    <ion-title>Take a photo</ion-title>
+    <ion-title>Gallery</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="presentFilter()">
+        <ion-icon name="options"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
-
+  <div padding>
+    <ion-segment [(ngModel)]="galleryMode">
+      <ion-segment-button value="sqlite">SQLite(Offline)</ion-segment-button>
+      <ion-segment-button value="firebase">Firebase(Online)</ion-segment-button>
+    </ion-segment>
+  </div>
 </ion-header>
 
 
-<ion-content padding class="card-background-page" (click)="takePhoto()">
-  <ion-card>
-    <img src="http://ionicframework.com/dist/preview-app/www/assets/img/card-sf.png"/>
-    <div class="card-title">Take a photo</div>
-    <div class="card-subtitle">Photo will be stored as a image string</div>
-  </ion-card>
+<ion-content padding>
+  
 </ion-content>
+
+
+<ion-footer>
+  <ion-toolbar [ngSwitch]="galleryMode">
+    <ion-grid *ngSwitchCase="'sqlite'">
+      <ion-row>
+        <ion-col width-33>
+          <button ion-button outline block icon-left (click)="presentActionSheet()">
+            <ion-icon name="camera"></ion-icon>Select
+          </button>
+        </ion-col>
+        <ion-col width-33>
+          <button ion-button outline block icon-left (click)="uploadImage()" [disabled]="lastImage === null">
+            <ion-icon name="cloud-upload"></ion-icon>Upload
+          </button>
+        </ion-col>
+        <ion-col width-33>
+          <button ion-button outline block icon-left>
+            <ion-icon name="trash"></ion-icon>Delete
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <ion-grid *ngSwitchCase="'firebase'">
+      <ion-row>
+        <ion-col width-50>
+          <button ion-button outline block icon-left>
+            <ion-icon name="cloud-download"></ion-icon>Download
+          </button>
+        </ion-col>
+        <ion-col width-50>
+          <button ion-button outline block icon-left>
+            <ion-icon name="trash"></ion-icon>Delete
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+</ion-footer>

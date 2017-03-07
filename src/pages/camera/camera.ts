@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Camera } from 'ionic-native';
-import { NavController, NavParams } from 'ionic-angular';
+import { ActionSheetController, ToastController, LoadingController } from 'ionic-angular';
+import { Camera, File, Transfer, FilePath } from 'ionic-native';
 
 /*
   Generated class for the Camera page.
@@ -14,23 +14,64 @@ import { NavController, NavParams } from 'ionic-angular';
 })
 export class CameraPage {
   public base64Image: string;
+  public galleryMode: string;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {}
+  constructor(
+    public actionSheetCtrl: ActionSheetController,
+    public toastCtrl: ToastController,
+    public loadingCtrl: LoadingController
+  ) {
+    this.galleryMode = 'sqlite';
+  }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad CameraPage');
   }
 
-  takePhoto() {
-    Camera.getPicture({
-      destinationType: Camera.DestinationType.DATA_URL,
-      targetHeight: 1000,
-      targetWidth: 1000
-    }).then(imageData => {
+  presentActionSheet() {
+    let actionSheet = this.actionSheetCtrl.create({
+      title: 'Select Image Source',
+      buttons: [
+        {
+          text: 'Load from gallery',
+          handler: () => this.getPhoto(Camera.PictureSourceType.PHOTOLIBRARY)
+        },
+        {
+          text: 'Use Camera',
+          handler: () => this.getPhoto(Camera.PictureSourceType.CAMERA)
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+    actionSheet.present();
+  }
+
+  getPhoto(sourceType) {
+    let options = this.setOptions(sourceType);
+
+    Camera.getPicture(options).then(imageData => {
       this.base64Image = 'data:image/jpeg;base64,' + imageData
     }, error => {
-      console.log(error);
+      console.log('Taking Photo Error: ', JSON.stringify(error));
     });
+  }
+
+  setOptions(srcType: number) {
+    let options = {
+      quality: 50,
+      targetWidth: 150,
+      targetHeight: 150,
+      destinationType: Camera.DestinationType.FILE_URI,
+      sourceType: srcType,
+      encondingType: Camera.EncodingType.JPEG,
+      mediaType: Camera.MediaType.PICTURE,
+      allowEdit: true,
+      correctOrientation: true
+    }
+    return options;
   }
 
 }
