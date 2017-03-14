@@ -45,7 +45,7 @@ export class AuthService {
     public platform: Platform,
     public storage: Storage
   ) {
-    this.expirationInterval = 60000;
+    this.expirationInterval = 600000;
   }
 
   public signup(signupObj: any) {
@@ -182,7 +182,7 @@ export class AuthService {
   }
 
   public logout() {
-    this.expirationInterval = 60000;
+    this.expirationInterval = 600000;
     this.idToken = '';
     this.userRole = '';
     this.tokenInfo = null;
