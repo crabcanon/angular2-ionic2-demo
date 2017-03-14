@@ -77,6 +77,16 @@ export class FirebaseService {
     return this.image.update(imageObj);
   }
 
+  readImages(userKey: string, startNumber: number, limitNumber: number) {
+    return this.af.database.list(`/users/${userKey}/images`, {
+      query: {
+        orderByKey: true,
+        startAt: startNumber,
+        limitToFirst: limitNumber
+      }
+    });
+  }
+
   deleteImage(userKey: string, imageKey: string) {
     this.image = this.af.database.object(`/users/${userKey}/images/${imageKey}`);
     return this.image.remove();
