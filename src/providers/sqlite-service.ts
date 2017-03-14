@@ -23,7 +23,7 @@ export class SqliteService {
   }
 
   getRepos(tableName: string, startNum: number) {
-    let sqlQuery = dedent`SELECT name, description, htmlurl\ 
+    let sqlQuery = `SELECT name, description, htmlurl\ 
     FROM ${tableName}\ 
     LIMIT ${startNum}, ${startNum + 50}`;
 
@@ -31,7 +31,7 @@ export class SqliteService {
   }
 
   findRepos(tableName: string, repoName: string, startNum: number) {
-    let sqlQuery = dedent`SELECT name, description, htmlurl\ 
+    let sqlQuery = `SELECT name, description, htmlurl\ 
     FROM ${tableName}\ 
     WHERE name LIKE '%${repoName}%'\ 
     LIMIT ${startNum}, ${startNum + 50}`;
