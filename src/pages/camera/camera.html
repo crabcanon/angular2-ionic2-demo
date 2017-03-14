@@ -22,8 +22,44 @@
 </ion-header>
 
 
-<ion-content padding>
-  
+<ion-content [ngSwitch]="galleryMode">
+  <div *ngSwitchCase="'sqlite'">
+    <ion-card [hidden]="sqliteImages.length !== 0">
+      <ion-card-content>No images in your local SQLite Database.</ion-card-content>
+    </ion-card>
+    
+    <ion-card [hidden]="sqliteImages.length === 0" *ngFor="let sqliteImage of sqliteImages">
+      <ion-item>
+        <ion-label>SQLite Image {{sqliteImage.id}}</ion-label>
+        <ion-checkbox color="secondary" checked="false"></ion-checkbox>
+        <p item-right>{{sqliteImage.createtime | date: 'yyyy.MM.dd'}}</p>
+      </ion-item>
+      <img src={{sqliteImage.content}} />
+    </ion-card>
+      
+    <ion-infinite-scroll (ionInfinite)="loadMoreSqliteImages($event)">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+
+  <div *ngSwitchCase="'firebase'">
+    <ion-card [hidden]="firebaseImages.length !== 0">
+      <ion-card-content>No images in your cloud Firebase Database.</ion-card-content>
+    </ion-card>
+    
+    <ion-card [hidden]="firebaseImages.length === 0" *ngFor="let firebaseImage of firebaseImages">
+      <ion-item>
+        <ion-label>Firebase Image {{firebaseImage.id}}</ion-label>
+        <ion-checkbox color="secondary" checked="false"></ion-checkbox>
+        <p item-right>{{firebaseImage.createtime | date: 'yyyy.MM.dd'}}</p>
+      </ion-item>
+      <img src={{firebaseImage.content}} />
+    </ion-card>
+
+    <ion-infinite-scroll (ionInfinite)="loadMorefirebaseImages($event)">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
 </ion-content>
 
 
@@ -37,12 +73,12 @@
           </button>
         </ion-col>
         <ion-col width-33>
-          <button ion-button outline block icon-left (click)="uploadImage()" [disabled]="lastImage === null">
+          <button ion-button outline block icon-left (click)="uploadSqliteImages()">
             <ion-icon name="cloud-upload"></ion-icon>Upload
           </button>
         </ion-col>
         <ion-col width-33>
-          <button ion-button outline block icon-left>
+          <button ion-button outline block icon-left (click)="deleteSqliteImages()">
             <ion-icon name="trash"></ion-icon>Delete
           </button>
         </ion-col>
@@ -52,12 +88,12 @@
     <ion-grid *ngSwitchCase="'firebase'">
       <ion-row>
         <ion-col width-50>
-          <button ion-button outline block icon-left>
+          <button ion-button outline block icon-left (click)="downloadFirebaseImages()">
             <ion-icon name="cloud-download"></ion-icon>Download
           </button>
         </ion-col>
         <ion-col width-50>
-          <button ion-button outline block icon-left>
+          <button ion-button outline block icon-left (click)="deleteFirebaseImages()">
             <ion-icon name="trash"></ion-icon>Delete
           </button>
         </ion-col>
