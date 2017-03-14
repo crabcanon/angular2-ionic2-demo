@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SQLite } from 'ionic-native';
 import { Observable } from 'rxjs/Rx';
+import dedent from 'dedent';
 
 let db = new SQLite();
 
@@ -22,7 +23,7 @@ export class SqliteService {
   }
 
   getRepos(tableName: string, startNum: number) {
-    let sqlQuery = `SELECT name, description, htmlurl\ 
+    let sqlQuery = dedent`SELECT name, description, htmlurl\ 
     FROM ${tableName}\ 
     LIMIT ${startNum}, ${startNum + 50}`;
 
@@ -30,7 +31,7 @@ export class SqliteService {
   }
 
   findRepos(tableName: string, repoName: string, startNum: number) {
-    let sqlQuery = `SELECT name, description, htmlurl\ 
+    let sqlQuery = dedent`SELECT name, description, htmlurl\ 
     FROM ${tableName}\ 
     WHERE name LIKE '%${repoName}%'\ 
     LIMIT ${startNum}, ${startNum + 50}`;
@@ -55,42 +56,28 @@ export class SqliteService {
     });
   }
 
-  insertItemsToGalleryTable(tableName: string, items: any) {
-    let createTableSql = `CREATE TABLE IF NOT EXISTS ${tableName}(
-      id integer PRIMARY KEY AUTOINCREMENT,
-      content text NOT NULL,
-      createtime integer NOT NULL,
-      uploadtime integer NOT NULL,
-      status integer NOT NULL
-    )`; 
-    let insertItemSql = `INSERT INTO ${tableName} (content, createtime, uploadtime, status) VALUES (?, ?, ?, ?)`;
-    let sqlBatchArray = [createTableSql].concat(items.map(item => [insertItemSql].concat(Object.values(item))));
-    let countItemsSql = `SELECT COUNT(*) FROM ${tableName} WHERE status = 0`;
-    let originalAmount: number = null;
-    let newAmount: number = null;
-    let successMessage: string = '';
-
-    db.executeSql(countItemsSql, []).then((rs) => originalAmount = rs);
+  insertItemsToGalleryTable(items: Array<any>) {
+    let insertItemSql: string = 'INSERT INTO gallery (content, createtime, uploadtime, status) VALUES (?, ?, ?, ?)';
     
     return Observable.create((observer) => {
-      db.sqlBatch(sqlBatchArray).then(() => {
-        db.executeSql(countItemsSql, []).then(rs => {
-          newAmount = rs - originalAmount;
-          successMessage = `${newAmount} items have been successfully inserted to ${tableName} table. \
-          ${rs} items are ready for sync to Firebase.`;
-          observer.next(successMessage);
-          observer.complete();
-        }, error => {
-          observer.error(error);
-        });
+      db.transaction((tx) => {
+        for (let item of items) {
+          console.log('Item: ', item, item.content, item.createTime, item.uploadTime, item.status);
+          tx.executeSql(insertItemSql, [item.content, item.createTime, item.uploadTime, item.status]);
+        }
+      }).then(() => {
+        console.log('Insert into gallery table done!');
+        observer.next('New items have been inserted into gallery table.');
+        observer.complete();
       }, error => {
+        console.log('Error when inserting items into gallery table: ', JSON.stringify(error));
         observer.error(error);
       });
     });
   }
 
-  updateItemOfGalleryTable(tableName: string, item: any) {
-    let updateItemSql = `UPDATE ${tableName} \
+  updateItemOfGalleryTable(item: any) {
+    let updateItemSql = dedent`UPDATE gallery \
     SET uploadtime = '${item.uploadtime}', status = ${item.status} \
     WHERE id = ${item.id}`;
 
@@ -105,40 +92,47 @@ export class SqliteService {
     });
   }
 
-  selectItemsFromGalleryTable(tableName: string, condition: any, startNum: number) {
+  selectItemsFromGalleryTable(condition: any, startNum: number) {
     let selectItemsSql: string = '';
 
     if (typeof condition === 'object' && Object.keys(condition).length === 3 && condition.type) {
       switch (condition.type) {
         case 'all':
-          selectItemsSql = `SELECT id, * FROM ${tableName} \
+          selectItemsSql = dedent`SELECT id, * FROM gallery \
           ORDER BY id ASC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
         case 'sync':
-          selectItemsSql = `SELECT id, * FROM ${tableName} \
+          selectItemsSql = dedent`SELECT id, * FROM gallery \
           WHERE status = 1 \
           ORDER BY id ASC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
         case 'unsync':
-          selectItemsSql = `SELECT id, * FROM ${tableName} \
+          selectItemsSql = dedent`SELECT id, * FROM gallery \
           WHERE status = 0 \ 
           ORDER BY id ASC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
         case 'timestamp':
-          selectItemsSql = `SELECT id, * FROM ${tableName} \
+          selectItemsSql = dedent`SELECT id, * FROM gallery \
           WHERE createtime >= ${condition.startTime} AND createtime <= ${condition.endTime} \
           ORDER BY id ASC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
       }
-    } 
+    }
 
     return Observable.create((observer) => {
+      console.log('selectItemsSql: ', selectItemsSql);
       if (selectItemsSql) {
-        db.executeSql(selectItemsSql, []).then(items => {
+        db.executeSql(selectItemsSql, []).then(data => {
+          let items: any = [];
+          if (data.rows.length > 0) {
+            for (let i = 0; i < data.rows.length; i++) {
+              items.push(data.rows.item(i));
+            }
+          } 
           observer.next(items);
           observer.complete();
         }, error => {
@@ -150,22 +144,22 @@ export class SqliteService {
     });
   }
 
-  deleteItemsFromGalleryTable(tableName: string, condition: any) {
+  deleteItemsFromGalleryTable(condition: any) {
     let deleteItemSql: string = '';
 
     if (typeof condition === 'object' && Object.keys(condition).length === 2 && condition.type) {
       switch (condition.type) {
         case 'all':
-          deleteItemSql = `DELETE FROM ${tableName}`;
+          deleteItemSql = `DELETE FROM gallery`;
           break;
         case 'sync':
-          deleteItemSql = `DELETE FROM ${tableName} WHERE status = 1`;
+          deleteItemSql = `DELETE FROM gallery WHERE status = 1`;
           break;
         case 'unsync':
-          deleteItemSql = `DELETE FROM ${tableName} WHERE status = 0`;
+          deleteItemSql = `DELETE FROM gallery WHERE status = 0`;
           break;
         case 'ids':
-          deleteItemSql = `DELETE FROM ${tableName} WHERE id IN ${condition.ids}`;
+          deleteItemSql = `DELETE FROM gallery WHERE id IN ${condition.ids}`;
           break;
       }
     }
