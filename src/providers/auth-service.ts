@@ -16,7 +16,8 @@ export interface UserInfoInterface {
   email: string,
   emailVerified: boolean,
   role: string,
-  createAt: string
+  createAt: string,
+  uid: string
 }
 
 /*
@@ -126,12 +127,17 @@ export class AuthService {
         email: info['email'],
         emailVerified: info['email_verified'],
         role: info['roles'][0] ? info['roles'][0] : this.userRole,
-        createAt: info['created_at'].split('T')[0]
+        createAt: info['created_at'].split('T')[0],
+        uid: info['user_id']
       };
       this.events.publish('auth:getUserInfo', this.userInfo);
     }, error => {
       console.log('getUserInfo Error: ', error);
     });
+  }
+  
+  public getUserInfoPromise() {
+    return this.storage.get('token_info');
   }
 
   /* Customize the expiration timer */
