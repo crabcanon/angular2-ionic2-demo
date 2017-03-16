@@ -43,22 +43,22 @@
   </div>
 
   <div *ngSwitchCase="'firebase'">
-    <ion-card [hidden]="firebaseImages.length !== 0">
+    <!--<ion-card [hidden]="firebaseImages.length !== 0">
       <ion-card-content>No images in your cloud Firebase Database.</ion-card-content>
-    </ion-card>
+    </ion-card>-->
     
-    <ion-card [hidden]="firebaseImages.length === 0" *ngFor="let firebaseImage of firebaseImages">
-      <ion-item>
+    <ion-card *ngFor="let firebaseImage of firebaseImages | async">
+      <ion-item [attr.firebaseImage]="firebaseImage.id">
         <ion-label>Firebase Image {{firebaseImage.id}}</ion-label>
-        <ion-checkbox color="secondary" checked="false"></ion-checkbox>
+        <ion-checkbox color="secondary" [(ngModel)]="!firebaseImage.status"></ion-checkbox>
         <p item-right>{{firebaseImage.createtime | date: 'yyyy.MM.dd'}}</p>
       </ion-item>
       <img src={{firebaseImage.content}} />
     </ion-card>
 
-    <ion-infinite-scroll (ionInfinite)="loadMorefirebaseImages($event)">
+    <!--<ion-infinite-scroll (ionInfinite)="loadMorefirebaseImages($event)">
       <ion-infinite-scroll-content></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
+    </ion-infinite-scroll>-->
   </div>
 </ion-content>
 

@@ -79,12 +79,13 @@ export class FirebaseService {
 
   readImages(userKey: string, subject: any, limitNumber: number) {
     console.log('Read Firebase Images: ', userKey, subject, limitNumber);
-    return this.af.database.list(`/users/${userKey}/images`, {
-      query: {
-        startAt: subject,
-        limitToFirst: limitNumber
-      }
-    });
+    return this.af.database.list(`/users/${userKey}/images`);
+    // return this.af.database.list(`/users/${userKey}/images`, {
+    //   query: {
+    //     startAt: subject,
+    //     limitToFirst: limitNumber
+    //   }
+    // });
   }
 
   deleteImage(userKey: string, imageKey: string) {

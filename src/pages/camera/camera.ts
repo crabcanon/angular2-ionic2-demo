@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActionSheetController, ToastController, LoadingController } from 'ionic-angular';
 import { Camera } from 'ionic-native';
 import { Observable, Subject } from 'rxjs/Rx';
+import { FirebaseListObservable } from 'angularfire2';
 
 import { AuthService } from '../../providers/auth-service';
 import { NativeService } from '../../providers/native-service';
@@ -40,11 +41,11 @@ export class CameraPage {
   public startFirebaseNum: number = 0;
   public image: ImageInterface = null;
   public sqliteImages: ImageInterface[] = [];
-  public firebaseImages: any = [];
   public selectedSqliteImages: Array<any> = [];
-  public selectedFirebaseImages: Array<any> = [];
-  public uploadEventSubject: any = new Subject();
-  public firebaseQuerySubject: any = new Subject();
+  public firebaseImages: FirebaseListObservable<any[]>;
+  public selectedFirebaseImages: FirebaseListObservable<any[]>;
+  public uploadEventSubject: Subject<any> = new Subject();
+  public firebaseQuerySubject: Subject<any> = new Subject();
 
   constructor(
     public actionSheetCtrl: ActionSheetController,
@@ -63,8 +64,7 @@ export class CameraPage {
     };
     this.getFirebaseUserId();
     this.openDB();
-    this.loadFirebaseImages();
-    this.firebaseQuerySubject.next(this.startFirebaseNum);
+    // this.firebaseQuerySubject.next(this.startFirebaseNum);
     this.uploadEventSubject
       .concatAll()
       .flatMap(item => this.processEvent(item))
@@ -95,6 +95,7 @@ export class CameraPage {
     this.authService.getUserInfoPromise().then(data => {
       let info = JSON.parse(data);
       this.userKey = info['user_id'];
+      this.loadFirebaseImages();
     })
   }
 
@@ -230,9 +231,9 @@ export class CameraPage {
         this.startSqliteNum = 0;
         return this.loadSqliteImages();
       }).then(() => {
-        this.startFirebaseNum = 0;
-        this.firebaseImages = [];
-        this.firebaseQuerySubject.next(this.startFirebaseNum);
+        // this.startFirebaseNum = 0;
+        // this.firebaseQuerySubject.next(this.startFirebaseNum);
+        this.loadFirebaseImages();
         observer.next(`Image (id: ${item.id}) uploaded to Firebase and deleted from SQLite.`);
         observer.complete();
       }).catch(error => {
@@ -243,7 +244,7 @@ export class CameraPage {
 
   public deleteSqliteImages() {
     let actionSheet = this.actionSheetCtrl.create({
-      title: 'Delete Images',
+      title: 'Delete SQLite Images',
       buttons: [
         {
           text: 'Delete selected images',
@@ -289,21 +290,75 @@ export class CameraPage {
   }
 
   public loadFirebaseImages() {
-    this.firebaseService.readImages(this.userKey, this.firebaseQuerySubject, 50).subscribe(items => {
-      console.log('Firebase Items: ', items);
-      this.firebaseImages = this.firebaseImages.concat(items);
-    }, error => {
-      console.log('Loading Firebase Images Error: ', JSON.stringify(error));
-    }, () => {
-      console.log('Loading Firebase Images Finished!');
-    });
+    this.firebaseImages = this.firebaseService.readImages(this.userKey, this.firebaseQuerySubject, 50);
   }
 
-  public loadMoreFirebaseImages(infiniteScroll: any) {
-    console.log('Loading More FirebaseImages: startFirebaseNum is currently ' + this.startFirebaseNum);
-    this.startFirebaseNum += 50;
-    this.firebaseQuerySubject(this.startFirebaseNum);
-    infiniteScroll.complete();
+  // public loadMoreFirebaseImages(infiniteScroll: any) {
+  //   console.log('Loading More FirebaseImages: startFirebaseNum is currently ' + this.startFirebaseNum);
+  //   this.startFirebaseNum += 50;
+  //   this.firebaseQuerySubject.next(this.startFirebaseNum);
+  // }
+
+  public downloadFirebaseImages() {
+    let actionSheet = this.actionSheetCtrl.create({
+      title: 'Download Images To SQLite',
+      buttons: [
+        {
+          text: 'Download selected images',
+          handler: () => this.downloadSelectedFirebaseImages()
+        },
+        {
+          text: 'Download all images',
+          handler: () => this.downloadAllFirebaseImages()
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+    actionSheet.present();
+  }
+
+  private downloadSelectedFirebaseImages() {
+
+  }
+
+  private downloadAllFirebaseImages() {
+
+  }
+
+  public deleteFirebaseImages() {
+    let actionSheet = this.actionSheetCtrl.create({
+      title: 'Delete Firebase Images',
+      buttons: [
+        {
+          text: 'Delete selected images',
+          handler: () => this.deleteSelectedFirebaseImages()
+        },
+        {
+          text: 'Delete all images',
+          handler: () => this.deleteAllFirebaseImages()
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+    actionSheet.present();
+  }
+
+  private deleteSelectedFirebaseImages() {
+    
+  }
+
+  private deleteAllFirebaseImages() {
+    this.firebaseService.deleteAllImages(this.userKey).then(() => {
+      this.presentToast('All the Firebase images have been successfully deleted.');
+    }).catch(error => {
+      this.presentToast(JSON.stringify(error));
+    });
   }
 
   private presentToast(text) {
