@@ -7,11 +7,11 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Gallery</ion-title>
-    <ion-buttons end>
+    <!--<ion-buttons end>
       <button ion-button icon-only (click)="presentFilter()">
         <ion-icon name="options"></ion-icon>
       </button>
-    </ion-buttons>
+    </ion-buttons>-->
   </ion-navbar>
   <div padding>
     <ion-segment [(ngModel)]="galleryMode">
@@ -29,9 +29,9 @@
     </ion-card>
     
     <ion-card [hidden]="sqliteImages.length === 0" *ngFor="let sqliteImage of sqliteImages">
-      <ion-item>
+      <ion-item [attr.sqliteImage]="sqliteImage.id">
         <ion-label>SQLite Image {{sqliteImage.id}}</ion-label>
-        <ion-checkbox color="secondary" checked="false"></ion-checkbox>
+        <ion-checkbox color="secondary" [(ngModel)]="sqliteImage.status"></ion-checkbox>
         <p item-right>{{sqliteImage.createtime | date: 'yyyy.MM.dd'}}</p>
       </ion-item>
       <img src={{sqliteImage.content}} />
@@ -68,7 +68,7 @@
     <ion-grid *ngSwitchCase="'sqlite'">
       <ion-row>
         <ion-col width-33>
-          <button ion-button outline block icon-left (click)="presentActionSheet()">
+          <button ion-button outline block icon-left (click)="createSqliteImages()">
             <ion-icon name="camera"></ion-icon>Select
           </button>
         </ion-col>
