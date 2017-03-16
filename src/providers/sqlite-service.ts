@@ -13,6 +13,7 @@ let db = new SQLite();
 */
 @Injectable()
 export class SqliteService {
+  public message: string = '';
 
   constructor() {
     console.log('Hello SqliteService Provider');
@@ -62,8 +63,7 @@ export class SqliteService {
     return Observable.create((observer) => {
       db.transaction((tx) => {
         for (let item of items) {
-          console.log('Item: ', item, item.content, item.createTime, item.uploadTime, item.status);
-          tx.executeSql(insertItemSql, [item.content, item.createTime, item.uploadTime, item.status]);
+          tx.executeSql(insertItemSql, [item.content, item.createtime, item.uploadtime, item.status]);
         }
       }).then(() => {
         console.log('Insert into gallery table done!');
@@ -144,37 +144,45 @@ export class SqliteService {
     });
   }
 
-  deleteItemsFromGalleryTable(condition: any) {
+  deleteItemsFromGalleryTable(condition: any, returnPromise?: boolean) {
     let deleteItemSql: string = '';
 
     if (typeof condition === 'object' && Object.keys(condition).length === 2 && condition.type) {
       switch (condition.type) {
         case 'all':
           deleteItemSql = `DELETE FROM gallery`;
+          this.message = 'All the images have been successfully deleted.';
           break;
         case 'sync':
           deleteItemSql = `DELETE FROM gallery WHERE status = 1`;
+          this.message = 'All the sync images have been successfully deleted.';
           break;
         case 'unsync':
           deleteItemSql = `DELETE FROM gallery WHERE status = 0`;
+          this.message = 'All the unsync images have been successfully deleted.';
           break;
         case 'ids':
-          deleteItemSql = `DELETE FROM gallery WHERE id IN ${condition.ids}`;
+          deleteItemSql = `DELETE FROM gallery WHERE id IN (${condition.ids})`;
+          this.message = 'All the selected images have been successfully deleted.';
           break;
       }
     }
 
-    return Observable.create((observer) => {
-      if (deleteItemSql) {
-        db.executeSql(deleteItemSql, []).then(() => {
-          observer.next('Items have been successfully deleted!');
-          observer.complete();
-        }, error => {
-          observer.error(error);
-        });
-      } else {
-        observer.error('Images DELETE SQL is empty. Cannot execute SQL.');
-      }
-    });
+    if (returnPromise === undefined || returnPromise === null) {
+      return Observable.create((observer) => {
+        if (deleteItemSql) {
+          db.executeSql(deleteItemSql, []).then(() => {
+            observer.next(this.message);
+            observer.complete();
+          }, error => {
+            observer.error(error);
+          });
+        } else {
+          observer.error('Images DELETE SQL is empty. Cannot execute SQL.');
+        }
+      });
+    } else if (returnPromise === true) {
+      return db.executeSql(deleteItemSql, []);
+    }
   }
 }
