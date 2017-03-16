@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import 'rxjs/add/operator/map';
 import { 
   AngularFire,
   FirebaseListObservable, 
@@ -68,6 +67,7 @@ export class FirebaseService {
   }
 
   createImage(userKey: string, imageObj: any) {
+    console.log('Create Firebase Image: ', userKey, JSON.stringify(imageObj));
     this.image = this.af.database.object(`/users/${userKey}/images/${imageObj.id}`);
     return this.image.set(imageObj);
   }
@@ -77,11 +77,11 @@ export class FirebaseService {
     return this.image.update(imageObj);
   }
 
-  readImages(userKey: string, startNumber: number, limitNumber: number) {
+  readImages(userKey: string, subject: any, limitNumber: number) {
+    console.log('Read Firebase Images: ', userKey, subject, limitNumber);
     return this.af.database.list(`/users/${userKey}/images`, {
       query: {
-        orderByKey: true,
-        startAt: startNumber,
+        startAt: subject,
         limitToFirst: limitNumber
       }
     });
