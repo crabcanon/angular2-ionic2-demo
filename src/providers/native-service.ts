@@ -173,7 +173,6 @@ export class NativeService {
 
   // Convert the image as a base64 format string
   convertImageAsBase64(filePath, fileName) {
-    console.log('File path and name: ', filePath, fileName);
     return File.readAsDataURL(filePath, fileName);
   }
 
