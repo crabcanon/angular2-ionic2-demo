@@ -213,6 +213,7 @@ export class CameraPage {
 
   private processEvent(item: any) {
     item.uploadtime = Date.now();
+    item.status = 0;
     let condition = {type: 'ids', ids: `${item.id}`};
     console.log('selectedSqliteImage, condition, userKey: ', item, condition, this.userKey);
 
@@ -350,7 +351,7 @@ export class CameraPage {
   }
 
   private deleteSelectedFirebaseImages() {
-    
+
   }
 
   private deleteAllFirebaseImages() {

@@ -50,7 +50,7 @@
     <ion-card *ngFor="let firebaseImage of firebaseImages | async">
       <ion-item [attr.firebaseImage]="firebaseImage.id">
         <ion-label>Firebase Image {{firebaseImage.id}}</ion-label>
-        <ion-checkbox color="secondary" [(ngModel)]="!firebaseImage.status"></ion-checkbox>
+        <ion-checkbox color="secondary" [(ngModel)]="firebaseImage.status"></ion-checkbox>
         <p item-right>{{firebaseImage.createtime | date: 'yyyy.MM.dd'}}</p>
       </ion-item>
       <img src={{firebaseImage.content}} />
