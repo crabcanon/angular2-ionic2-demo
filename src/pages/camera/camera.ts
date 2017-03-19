@@ -70,17 +70,22 @@ export class CameraPage {
       .flatMap(item => this.processEvent(item))
       .map(msg => msg)
       .subscribe(msg => {
-        console.log('Upload and delete messages: ', JSON.stringify(msg));
+        console.log('Upload and delete image: ', msg);
       }, error => {
         console.log('Upload and delete error: ', error);
         this.presentToast(error);
       }, () => {
-        this.presentToast('All the images have been successfully uploaded to Firebase and deleted from SQLite');
+        this.presentToast('Images successfully uploaded to Firebase and deleted from SQLite.');
       });
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad CameraPage');
+  }
+
+  private resetSqliteParams() {
+    this.sqliteImages = [];
+    this.startSqliteNum = 0;
   }
 
   public openDB() {
@@ -140,8 +145,7 @@ export class CameraPage {
     this.sqliteService.openDatabase('data.db', 'default').then(() => {
       observablesChain.subscribe(message => {
         console.log('insertItemsToGalleryTable Done! ', message);
-        this.startSqliteNum = 0;
-        this.sqliteImages = [];
+        this.resetSqliteParams();
         this.loadSqliteImages();
       }, error => {
         console.log('insertItemsToGalleryTable Failed! ', error);
@@ -217,30 +221,27 @@ export class CameraPage {
     let condition = {type: 'ids', ids: `${item.id}`};
     console.log('selectedSqliteImage, condition, userKey: ', item, condition, this.userKey);
 
-    // let observable1 = Observable.fromPromise(this.firebaseService.createImage(this.userKey, item));
-    // let observable2 = Observable.fromPromise(this.sqliteService.deleteItemsFromGalleryTable(condition, true));
-    // let observable3 = Observable.fromPromise(this.loadSqliteImages());
-    // let observable4 = Observable.fromPromise(this.loadFirebaseImages());
-    // return Observable.concat(observable1, observable2, observable3, observable4);
-    return Observable.create(observer => {
-      this.firebaseService.createImage(this.userKey, item).then(() => {
-        return this.sqliteService.deleteItemsFromGalleryTable(condition, true);
-      }).catch(error => {
-        observer.error(`Upload image (id: ${item.id}) to Firebase failed.`);
-      }).then(() => {
-        this.sqliteImages = [];
-        this.startSqliteNum = 0;
-        return this.loadSqliteImages();
-      }).then(() => {
-        // this.startFirebaseNum = 0;
-        // this.firebaseQuerySubject.next(this.startFirebaseNum);
-        this.loadFirebaseImages();
-        observer.next(`Image (id: ${item.id}) uploaded to Firebase and deleted from SQLite.`);
-        observer.complete();
-      }).catch(error => {
-        observer.error(`Delete image (id: ${item.id}) from SQLite failed.`);
-      });
-    });
+    let observable1 = Observable.defer(() => this.firebaseService.createImage(this.userKey, item));
+    let observable2 = Observable.defer(() => this.sqliteService.deleteItemsFromGalleryTable(condition, true));
+    let observable3 = Observable.defer(() => { this.resetSqliteParams(); return this.loadSqliteImages(); });
+    let observable4 = Observable.defer(() => this.loadFirebaseImages());
+    return Observable.concat(observable1, observable2, observable3, observable4);
+    // return Observable.create(observer => {
+    //   this.firebaseService.createImage(this.userKey, item).then(() => {
+    //     return this.sqliteService.deleteItemsFromGalleryTable(condition, true);
+    //   }).catch(error => {
+    //     observer.error(`Upload image (id: ${item.id}) to Firebase failed.`);
+    //   }).then(() => {
+    //     this.resetSqliteParams();
+    //     return this.loadSqliteImages();
+    //   }).then(() => {
+    //     this.loadFirebaseImages();
+    //     observer.next(`Image (id: ${item.id}) uploaded to Firebase and deleted from SQLite.`);
+    //     observer.complete();
+    //   }).catch(error => {
+    //     observer.error(`Delete image (id: ${item.id}) from SQLite failed.`);
+    //   });
+    // });
   }
 
   public deleteSqliteImages() {
@@ -272,8 +273,7 @@ export class CameraPage {
     }, error => {
       this.presentToast(JSON.stringify(error));
     }, () => {
-      this.startSqliteNum = 0;
-      this.sqliteImages = [];
+      this.resetSqliteParams();
       this.loadSqliteImages();
     });
   }
@@ -285,13 +285,15 @@ export class CameraPage {
     }, error => {
       this.presentToast(JSON.stringify(error));
     }, () => {
-      this.startSqliteNum = 0;
-      this.sqliteImages = [];
+      this.resetSqliteParams();
     });
   }
 
   public loadFirebaseImages() {
-    this.firebaseImages = this.firebaseService.readImages(this.userKey, this.firebaseQuerySubject, 50);
+    return new Promise((resolve, reject) => {
+      this.firebaseImages = this.firebaseService.readImages(this.userKey, this.firebaseQuerySubject, 50);
+      resolve(true);
+    });
   }
 
   // public loadMoreFirebaseImages(infiniteScroll: any) {
