@@ -30,7 +30,7 @@
     
     <ion-card [hidden]="sqliteImages.length === 0" *ngFor="let sqliteImage of sqliteImages">
       <ion-item [attr.sqliteImage]="sqliteImage.id">
-        <ion-label>SQLite Image {{sqliteImage.id}}</ion-label>
+        <ion-label>{{sqliteImage.name}}</ion-label>
         <ion-checkbox color="secondary" [(ngModel)]="sqliteImage.status"></ion-checkbox>
         <p item-right>{{sqliteImage.createtime | date: 'yyyy.MM.dd'}}</p>
       </ion-item>
@@ -49,7 +49,7 @@
     
     <ion-card *ngFor="let firebaseImage of firebaseImages | async">
       <ion-item [attr.firebaseImage]="firebaseImage.id">
-        <ion-label>Firebase Image {{firebaseImage.id}}</ion-label>
+        <ion-label>{{firebaseImage.name}}</ion-label>
         <ion-checkbox color="secondary" [(ngModel)]="firebaseImage.status"></ion-checkbox>
         <p item-right>{{firebaseImage.createtime | date: 'yyyy.MM.dd'}}</p>
       </ion-item>
