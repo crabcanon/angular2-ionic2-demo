@@ -58,12 +58,12 @@ export class SqliteService {
   }
 
   insertItemsToGalleryTable(items: Array<any>) {
-    let insertItemSql: string = 'INSERT INTO gallery (content, createtime, uploadtime, status) VALUES (?, ?, ?, ?)';
+    let insertItemSql: string = 'INSERT INTO gallery (id, name, content, createtime, uploadtime, status) VALUES (?, ?, ?, ?, ?, ?)';
     
     return Observable.create((observer) => {
       db.transaction((tx) => {
         for (let item of items) {
-          tx.executeSql(insertItemSql, [item.content, item.createtime, item.uploadtime, item.status]);
+          tx.executeSql(insertItemSql, Object.keys(item).map(k => item[k]));
         }
       }).then(() => {
         console.log('Insert into gallery table done!');
@@ -99,25 +99,25 @@ export class SqliteService {
       switch (condition.type) {
         case 'all':
           selectItemsSql = dedent`SELECT id, * FROM gallery \
-          ORDER BY id ASC \
+          ORDER BY createtime DESC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
         case 'sync':
           selectItemsSql = dedent`SELECT id, * FROM gallery \
           WHERE status = 1 \
-          ORDER BY id ASC \
+          ORDER BY createtime DESC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
         case 'unsync':
           selectItemsSql = dedent`SELECT id, * FROM gallery \
           WHERE status = 0 \ 
-          ORDER BY id ASC \
+          ORDER BY createtime DESC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
         case 'timestamp':
           selectItemsSql = dedent`SELECT id, * FROM gallery \
           WHERE createtime >= ${condition.startTime} AND createtime <= ${condition.endTime} \
-          ORDER BY id ASC \
+          ORDER BY createtime DESC \
           LIMIT ${startNum}, ${startNum + 50}`;
           break;
       }
@@ -161,6 +161,10 @@ export class SqliteService {
           deleteItemSql = `DELETE FROM gallery WHERE status = 0`;
           this.message = 'All the unsync images have been successfully deleted.';
           break;
+        case 'id':
+          deleteItemSql = `DELETE FROM gallery WHERE id="${condition.id}"`;
+          this.message = `Image ${condition.id} has been successfully deleted`;
+          break; 
         case 'ids':
           deleteItemSql = `DELETE FROM gallery WHERE id IN (${condition.ids})`;
           this.message = 'All the selected images have been successfully deleted.';

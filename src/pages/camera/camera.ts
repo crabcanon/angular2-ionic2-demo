@@ -3,6 +3,7 @@ import { ActionSheetController, ToastController, LoadingController } from 'ionic
 import { Camera } from 'ionic-native';
 import { Observable, Subject } from 'rxjs/Rx';
 import { FirebaseListObservable } from 'angularfire2';
+import { v4 as uuid } from 'uuid';
 
 import { AuthService } from '../../providers/auth-service';
 import { NativeService } from '../../providers/native-service';
@@ -10,11 +11,12 @@ import { SqliteService } from '../../providers/sqlite-service';
 import { FirebaseService } from '../../providers/firebase-service';
 
 export interface ImageInterface {
+  id: string;
+  name: string;
   content: string;
   createtime: number;
   uploadtime?: number;
   status: number;
-  id?: number;
 }
 
 export interface ConditionInterface {
@@ -126,17 +128,18 @@ export class CameraPage {
   }
 
   private storeImageToSqlite(sourceType) {
-    let observablesChain = this.nativeService.parseImageAsString(sourceType).flatMap(imageString => {
-      this.image = {
-        content: imageString,
+    let observablesChain = this.nativeService.parseImageAsString(sourceType).flatMap(imgObj => {
+      this.image = Object.freeze({
+        id: uuid(),
+        name: imgObj.name,
+        content: imgObj.value,
         createtime: Date.now(),
         uploadtime: 0,
         status: 0 
-      };
+      });
       let items: Array<any> = [];
       items.push(this.image);
-      console.log('parseImageAsString Done! ', imageString, this.image, items);
-      
+      console.log('parseImageAsString Done! ', imgObj.name);    
       return this.sqliteService.insertItemsToGalleryTable(items);
     }).map(message => {
       return message;
@@ -160,7 +163,6 @@ export class CameraPage {
   public loadSqliteImages() {
     return new Promise((resolve, reject) => {
       this.sqliteService.selectItemsFromGalleryTable(this.condition, this.startSqliteNum).subscribe(items => {
-        console.log(items);
         this.sqliteImages = this.sqliteImages.concat(items);
       }, error => {
         console.log('Loading SQLite Images Error: ', JSON.stringify(error));
@@ -218,30 +220,32 @@ export class CameraPage {
   private processEvent(item: any) {
     item.uploadtime = Date.now();
     item.status = 0;
-    let condition = {type: 'ids', ids: `${item.id}`};
+    let condition = {type: 'id', id: `${item.id}`};
     console.log('selectedSqliteImage, condition, userKey: ', item, condition, this.userKey);
 
-    let observable1 = Observable.defer(() => this.firebaseService.createImage(this.userKey, item));
-    let observable2 = Observable.defer(() => this.sqliteService.deleteItemsFromGalleryTable(condition, true));
-    let observable3 = Observable.defer(() => { this.resetSqliteParams(); return this.loadSqliteImages(); });
-    let observable4 = Observable.defer(() => this.loadFirebaseImages());
-    return Observable.concat(observable1, observable2, observable3, observable4);
-    // return Observable.create(observer => {
-    //   this.firebaseService.createImage(this.userKey, item).then(() => {
-    //     return this.sqliteService.deleteItemsFromGalleryTable(condition, true);
-    //   }).catch(error => {
-    //     observer.error(`Upload image (id: ${item.id}) to Firebase failed.`);
-    //   }).then(() => {
-    //     this.resetSqliteParams();
-    //     return this.loadSqliteImages();
-    //   }).then(() => {
-    //     this.loadFirebaseImages();
-    //     observer.next(`Image (id: ${item.id}) uploaded to Firebase and deleted from SQLite.`);
-    //     observer.complete();
-    //   }).catch(error => {
-    //     observer.error(`Delete image (id: ${item.id}) from SQLite failed.`);
-    //   });
-    // });
+    // Test source: http://jsbin.com/weyumaquzi/edit?js,console
+    // let observable1 = Observable.defer(() => this.firebaseService.createImage(this.userKey, item));
+    // let observable2 = Observable.defer(() => this.sqliteService.deleteItemsFromGalleryTable(condition, true));
+    // let observable3 = Observable.defer(() => { this.resetSqliteParams(); return this.loadSqliteImages(); });
+    // let observable4 = Observable.defer(() => this.loadFirebaseImages());
+    // return Observable.merge(observable1, observable2, observable3, observable4);
+
+    return Observable.create(observer => {
+      this.firebaseService.createImage(this.userKey, item).then(() => {
+        return this.sqliteService.deleteItemsFromGalleryTable(condition, true);
+      }).catch(error => {
+        observer.error(`Upload image (id: ${item.id}) to Firebase failed.`);
+      }).then(() => {
+        this.resetSqliteParams();
+        return this.loadSqliteImages();
+      }).then(() => {
+        this.loadFirebaseImages();
+        observer.next(`Image (id: ${item.id}) uploaded to Firebase and deleted from SQLite.`);
+        observer.complete();
+      }).catch(error => {
+        observer.error(`Delete image (id: ${item.id}) from SQLite failed.`);
+      });
+    });
   }
 
   public deleteSqliteImages() {

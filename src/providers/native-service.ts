@@ -123,7 +123,7 @@ export class NativeService {
           console.log('FilePath Resolve Android Native Path Error: ', JSON.stringify(error));
           observer.error(error);
         }).then(imageString => {
-          observer.next(imageString);
+          observer.next({ name: currentName, value: imageString });
           observer.complete();
         });
       } else {
@@ -138,7 +138,7 @@ export class NativeService {
           console.log('CurrentName, CurrentPath: ', currentName, currentPath);
           return this.convertImageAsBase64(currentPath, currentName);
         }).then(imageString => {
-          observer.next(imageString);
+          observer.next({ name: currentName, value: imageString });
           observer.complete();
         });
       }
